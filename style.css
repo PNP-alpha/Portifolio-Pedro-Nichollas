@@ -634,121 +634,104 @@ footer {
 }
 
 /* =========================================================
-   📱 UX MOBILE IMPECÁVEL (Telas menores que 900px)
+   📱 UX MOBILE BLINDADO (Telas menores que 900px)
    ========================================================= */
 @media (max-width: 900px) {
     
-    /* 1. TOPO LIMPO E MENU FLUIDO */
+    /* 1. RESTAURAR O MENU E ESCONDER A BARRA GX */
+    .gx-sidebar { display: none !important; }
+    body { padding-left: 0 !important; }
+
     .navbar { 
-        flex-direction: column; 
-        height: auto; 
-        padding: 15px; 
+        flex-direction: column !important; 
+        height: auto !important; 
+        padding: 15px 5px !important; 
     }
     
     .left-section { 
-        width: 100%; 
-        justify-content: center; /* Centraliza o Logo */
-        margin-bottom: 10px; 
+        width: 100% !important; 
+        justify-content: center !important; 
+        margin-bottom: 15px !important; 
     }
     
-    .logo { margin-right: 0; }
-    
     .menu { 
-        flex-wrap: wrap; 
-        justify-content: center; 
-        gap: 10px; 
+        display: flex !important; /* Força o menu a aparecer */
+        width: 100% !important;
+        flex-wrap: wrap !important; 
+        justify-content: center !important; 
+        gap: 12px !important; 
     }
     
     .nav-link { 
-        font-size: 0.75rem; 
-        padding: 5px 8px; 
+        font-size: 0.8rem !important; 
+        padding: 8px 12px !important; 
+        background: rgba(255, 255, 255, 0.05); /* Fundo sutil para destacar os botões */
+        border-radius: 4px;
     }
 
-    /* 2. RÁDIO COMO BARRA INFERIOR FIXA (Estilo Spotify) */
+    /* 2. TRAVA ABSOLUTA DA RÁDIO (O segredo contra o tremor) */
     .radio-panel {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 65px; /* Altura fixa para nunca tremer */
-        background: rgba(10, 10, 10, 0.98);
-        backdrop-filter: blur(15px);
-        border: none;
-        border-top: 2px solid var(--neon-color);
-        border-radius: 0;
-        justify-content: center;
-        z-index: 9999;
-        margin: 0;
-        box-shadow: 0 -5px 25px rgba(0,0,0,0.9);
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100vw !important; /* Trava exata na largura da tela */
+        height: 70px !important; 
+        max-height: 70px !important;
+        background: rgba(10, 10, 10, 0.98) !important;
+        border-top: 2px solid var(--neon-color) !important;
+        border-bottom: none !important; border-left: none !important; border-right: none !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        z-index: 9999 !important;
+        box-sizing: border-box !important;
+        padding: 0 10px !important;
     }
 
+    /* flex: 0 0 160px arranca a inteligência do Flexbox e congela o tamanho */
     .radio-screen {
-        width: 140px !important; /* Trava a largura da tela da rádio */
-        min-width: 140px;
-        overflow: hidden;
+        flex: 0 0 160px !important; 
+        width: 160px !important;
+        max-width: 160px !important;
+        height: 35px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
     }
 
     #radio-text {
-        display: block;
-        width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis; /* Reticências se a música for muito grande */
+        width: 100% !important;
+        display: block !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important; /* Põe os '...' se a música for grande */
+        margin: 0 !important;
     }
 
-    /* 3. FERRAMENTAS COMO BOTÕES FLUTUANTES (Canto inferior direito) */
+    /* 3. BOTÕES FLUTUANTES (Ferramentas) */
     .tools-group {
-        position: fixed;
-        bottom: 85px; /* Fica logo acima da barra da rádio */
-        right: 15px;
-        flex-direction: column; /* Empilha os botões verticalmente */
-        gap: 15px;
-        border: none;
-        padding: 0;
-        margin: 0;
-        z-index: 9998;
+        position: fixed !important;
+        bottom: 90px !important; 
+        right: 15px !important;
+        flex-direction: column !important; 
+        gap: 15px !important;
+        border: none !important;
+        z-index: 9998 !important;
     }
 
     .tool-btn, .settings-btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%; /* Deixa redondinho estilo App */
-        box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        width: 45px !important; height: 45px !important;
+        border-radius: 50% !important;
     }
 
-    .tool-btn .btn-face, .settings-btn .btn-face {
-        border-radius: 50%;
-    }
+    .color-picker-tooltip { top: auto !important; bottom: 0 !important; left: -190px !important; }
+    .color-picker-tooltip::before { display: none !important; }
 
-    /* Ajusta a paleta de cores para abrir para a esquerda */
-    .color-picker-tooltip {
-        top: auto;
-        bottom: 0;
-        left: -190px;
-    }
-    
-    .color-picker-tooltip::before { display: none; } /* Remove a setinha para não bugar o visual */
-
-    /* 4. AJUSTE DO CORPO PARA NÃO SER COBERTO PELAS BARRAS FIXAS */
-    .hero { 
-        padding-top: 150px; 
-        padding-bottom: 100px; /* Espaço extra embaixo para a rádio não cobrir o conteúdo */
-    }
-    
-    .section { 
-        padding: 60px 5% 100px 5%; 
-    }
-    
-    .profile-container {
-        width: 220px;
-        height: 220px;
-    }
-
-    /* Grid única para os projetos */
-    .grid-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .contact-container { flex-direction: column; }
-    .contact-container .nav-link { text-align: center; }
+    /* 4. AJUSTE DO CORPO PARA NÃO CORTAR CONTEÚDO */
+    .hero { padding-top: 200px !important; padding-bottom: 100px !important; }
+    .section { padding: 80px 5% 100px 5% !important; }
+    .grid-container { grid-template-columns: 1fr !important; }
+    .contact-container { flex-direction: column !important; }
+    .contact-container .nav-link { text-align: center !important; width: 100%; }
 }
