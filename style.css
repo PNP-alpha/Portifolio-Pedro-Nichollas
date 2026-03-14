@@ -632,3 +632,83 @@ footer {
     .gx-sidebar { display: none; }
     body { padding-left: 0; }
 }
+
+/* =========================================================
+   📱 MODO MOBILE DEFINITIVO (Telas menores que 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+    
+    /* 1. TRAVA CIRÚRGICA DA RÁDIO (Fim dos tremores) */
+    .radio-screen {
+        width: 100% !important;
+        max-width: 250px !important;
+        flex-grow: 0;
+        overflow: hidden; /* Esconde o que vazar */
+    }
+    
+    #radio-text {
+        display: block;
+        width: 100%;
+        text-overflow: ellipsis; /* Se o nome da música for gigante, coloca "..." no final */
+        white-space: nowrap;
+    }
+
+    /* 2. DESEMPILHAR A NAVBAR (Fim do esmagamento) */
+    .left-section {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 15px;
+    }
+
+    .radio-panel {
+        flex-wrap: wrap; /* Permite que os botões caiam para a linha de baixo se não couberem */
+        justify-content: center;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .tools-group {
+        margin-left: 0;
+        padding-left: 0;
+        border-left: none;
+        width: 100%;
+        justify-content: center;
+        border-top: 1px solid #333; /* Muda a divisória para cima */
+        padding-top: 10px;
+    }
+
+    /* 3. AJUSTES GERAIS DE LEITURA E ESPAÇAMENTO */
+    .hero {
+        padding-top: 250px; /* Empurra o perfil para baixo para a navbar gigante não cobrir */
+        padding-bottom: 50px;
+    }
+    
+    .profile-container {
+        width: 200px; /* Reduz a foto de perfil */
+        height: 200px;
+    }
+    
+    .section-title {
+        font-size: 1.5rem; /* Títulos menores para não quebrarem a palavra */
+        margin-bottom: 30px;
+    }
+    
+    .grid-container {
+        grid-template-columns: 1fr; /* Força os cards (Nexus, etc) a ficarem em coluna única */
+    }
+    
+    .card {
+        min-height: auto; /* Deixa o card crescer de acordo com o texto */
+    }
+
+    .contact-container {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .contact-container .nav-link {
+        width: 100%;
+        text-align: center;
+    }
+}
