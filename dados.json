@@ -1,0 +1,187 @@
+{
+  "_SECAO_GLOBAL": "++++++++++++++++================== CONFIGURAÇÕES GERAIS ======================+++++++++++++++",
+  "global": {
+    "titulo_aba": "Portfólio | Pedro Nichollas",
+    "cor_primaria": "#00ff88",
+    "cor_secundaria": "#0a0a0a",
+    "temas": [
+      {"nome": "Matrix Green", "cor": "#00ff88"},
+      {"nome": "Cyber Blue",   "cor": "#00f3ff"},
+      {"nome": "Neon Pink",    "cor": "#ff00ff"},
+      {"nome": "Golden Elite", "cor": "#ffae00"},
+      {"nome": "Red Alert",    "cor": "#ff2a2a"},
+      {"nome": "Royal Purple", "cor": "#9d00ff"}
+    ]
+  },
+
+  "_SECAO_MENU": "++++++++++++++++================== MENU DE NAVEGAÇÃO ======================+++++++++++++++",
+  "menu": [
+    { "texto": "Home", "link": "#home" },
+    { "texto": "Projetos", "link": "#projetos" },
+    { "texto": "Formação", "link": "#formacao" },
+    { "texto": "Carreira", "link": "#carreira" },
+    { "texto": "Certificados", "link": "#certificados" },
+    { "texto": "Contato", "link": "#contato" }
+  ],
+
+  "_SECAO_PERFIL": "++++++++++++++++================== DADOS DO PERFIL ======================+++++++++++++++",
+  "perfil": {
+    "nome": "Pedro Nichollas Palrinhas",
+    "titulo": "Desenvolvedor WEB | Oracle ERP| DBA",
+    "subtitulo": "Transformando ideias em interfaces inteligentes e sistemas robustos.",
+    "numero_misterioso": "System v4.0",
+    "nas": "2026",
+    "foto": "assets/perfil.jpg"
+  },
+
+  "_SECAO_TEXTOS": "++++++++++++++++================== TEXTOS FIXOS ======================+++++++++++++++",
+  "textos_fixos": {
+    "ticker_label": "NEWS",
+    "titulo_projetos": "PROJETOS EM DESTAQUE",
+    "titulo_formacao": "FORMAÇÕES",
+    "titulo_carreira": "EXPERIÊNCIA PROFISSIONAL",
+    "titulo_certificados": "CERTIFICAÇÕES",
+    "titulo_contato": "INICIAR CONEXÃO",
+    "footer_texto": "Desenvolvido por Pedro Nichollas © 2026 | Powered by PNP Systems"
+  },
+
+  "_SECAO_NOTICIAS": "++++++++++++++++================== NEWS TICKER ======================+++++++++++++++",
+  "noticias": {
+    "rss_url": "https://www.tabnews.com.br/recentes/rss",
+    "velocidade_animacao": "60s",
+    "noticia_fake": "🚀 SYSTEM UPDATE: Diretórios reestruturados. Módulos 'Jogos' e 'Projetos' operando em clusters independentes."
+  },
+
+  "_SECAO_RADIO": "++++++++++++++++================== RÁDIO PLAYER ======================+++++++++++++++",
+  "radio_config": {
+    "url": "https://stream.zeno.fm/f3wvbbqmdg8uv",
+    "nome_display": "LOFI CODING FM",
+    "volume_inicial": 0.2
+  },
+
+  "_SECAO_PROJETOS": "++++++++++++++++================== LISTA DE PROJETOS (CAMINHOS ATUALIZADOS) ======================+++++++++++++++",
+  "projetos": [
+    {
+      "titulo": "Nexus Enterprise ERP",
+      "descricao": "Sistema de Gestão Logística Completo. Inclui Rastreamento de Frota em Tempo Real (Leaflet), Dashboard Financeiro (Chart.js), Autenticação de Usuários e Módulos WMS/TMS.",
+      "link": "projetos/nexus_erp/index.html",
+      "imagem": "assets/proj_nexus.jpg"
+    },
+    {
+      "titulo": "Portal do Cidadão (e-Gov)",
+      "descricao": "Sistema governamental completo (SPA) com módulos de Saúde, Tributos e Transparência. Design System responsivo e abrangente com todas as funções necessárias para o funcionamento de uma prefeitura.",
+      "link": "projetos/proj_prefeitura.html",
+      "imagem": "assets/proj_prefeitura.jpg"
+    },
+    {
+      "titulo": "Oracle Cost Manager v3",
+      "descricao": "Suite FinOps Enterprise com conversão de moeda em tempo real, budget alert e gráficos interativos Chart.js.",
+      "link": "projetos/proj_finance.html",
+      "imagem": "assets/projOracle.jpg"
+    },
+    {
+      "titulo": "GeoTactical Scanner v3",
+      "descricao": "Inteligência Geográfica com camadas de satélite, simulação de rota tática e radar de POIs via OpenStreetMap.",
+      "link": "projetos/proj_geo.html",
+      "imagem": "assets/projGEO.jpg"
+    },
+    {
+      "titulo": "DataForge SQL IDE v4",
+      "descricao": "IDE de Banco de Dados com Sidebar reativa, motor SQL em memória (CRUD Simulado) e exportação de dados.",
+      "link": "projetos/proj_sql.html",
+      "imagem": "assets/projDATA.jpg"
+    }
+  ],
+
+  "_SECAO_FORMACAO": "++++++++++++++++================== EDUCAÇÃO ======================+++++++++++++++",
+  "formacao": [
+    {
+      "curso": "Engenharia da Computação",
+      "periodo": "2021 - Cursando",
+      "instituicao": "Universidade Anhembi Morumbi",
+      "detalhes": "Foco em Arquitetura de Software, Algoritmos Avançados e IA."
+    },
+    {
+      "curso": "Oracle Cloud Infrastructure Architect",
+      "periodo": "2025 - Cursando",
+      "instituicao": "Oracle University",
+      "detalhes": "Especialização em infraestrutura, networking e segurança em nuvem."
+    },
+    {
+      "curso": "Desenvolvimento WEB completo 2.0 ",
+      "periodo": "2025 - Cursando",
+      "instituicao": "Danki Code",
+      "detalhes": "Especialização em desenvolvimento web completo de páginas e aplicações."
+    },
+    {
+      "curso": "Bootcamp - Bradesco | GenAI & Dados",
+      "periodo": "2026 - Finalizado",
+      "instituicao": "Plataforma DIO",
+      "detalhes": "Especialização em dados, banco de dados, processos de ETL, linguagens de programação e IA's Generativas como suporte e ferramenta para ampliar e maximizar resultados."
+    }
+  ],
+
+  "_SECAO_CARREIRA": "++++++++++++++++================== TRABALHO ======================+++++++++++++++",
+  "carreira": [
+    {
+      "cargo": "Assessor de Comunicação",
+      "periodo": "2025 - Atual",
+      "empresa": "Prefeitura de Monte Sião",
+      "detalhes": "Acessoria de comunicação interna e externa, mídias, artes e matérias jornalísticas para o site oficial da prefeitura municipal de Monte Sião."
+    },
+    {
+      "cargo": "Produtor Audiovisual",
+      "periodo": "2026 - Atual",
+      "empresa": "Empresa própria",
+      "detalhes": "gerenciamento de todas as etapas de projetos de vídeo, áudio ou multimídia — da pré-produção à finalização — garantindo prazos, orçamento e qualidade. Essencial em cinema, TV, publicidade e internet, coordenando equipes, logística, contratações e a captação de recursos, sendo o ponto central de comunicação."
+    }
+  ],
+
+  "_SECAO_CERTIFICADOS": "++++++++++++++++================== CERTIFICADOS ======================+++++++++++++++",
+  "certificados": [
+    {
+      "titulo": "Bradesco GenAI & Dados",
+      "descricao": "Certificação que abrange todas as aplicações Office e suas funcionalidades, com carga horária total de 80H",
+      "imagem": "assets/bra.jpg",
+      "link": "https://hermes.dio.me/certificates/KBRA1LBX.pdf"
+    },
+    {
+      "titulo": "Pacote Office Completo",
+      "descricao": "Certificação que abrange todas as aplicações Office e suas funcionalidades, com carga horária total de 80H",
+      "imagem": "assets/unova.jpg",
+      "link": "https://www.unovacursos.com.br/ava/certificado/MjI4Mzg5MA=="
+    },
+    {
+      "titulo": "Curso Canva completo",
+      "descricao": "Domínio completo das funções e amplas possibilidades de Design utilizando a ferramenta Canva - carga horária de 4H",
+      "imagem": "assets/canva.jpg",
+      "link": "https://cursos.dankicode.com/api/certificados/bc5c7cca-1503-45c5-bb4e-addc1e3d352a"
+    },
+    {
+      "titulo": "Ingês Intermediário",
+      "descricao": "Curso de inglês intermediário na plataforma Unova Cursos, focando em speaking e expressões idiomáticas, com a carga horária de 10H ",
+      "imagem": "assets/ing.jpg",
+      "link": "https://www.unovacursos.com.br/ava/certificado/MjQ3MzcyNQ=="
+    },
+    {
+      "titulo": "Ciêcia de Dadoas",
+      "descricao": "Curo de Ciência de dados disponibilizado pela Fundação Getúlio Vargas com carga horário total de 60H ",
+      "imagem": "assets/fgv.jpg",
+      "link": "https://portal.conhecimento.fgv.br/validadorCertificado"
+    }
+
+  ],
+
+  "_SECAO_CONTATO": "++++++++++++++++================== CONTATO & EXTRAS ======================+++++++++++++++",
+  "contato": {
+    "email": "pnp.pedronichollas@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/pedro-nichollas-palrinhas-b7145622a/",
+    "github": "https://github.com/PNP-alpha",
+    "whatsapp": "https://wa.me/5513981814780"
+  },
+  "config_extra": {
+    "cv_link": "assets/curriculo_pedro.pdf",
+    "form_endpoint": "https://formspree.io/f/seu-codigo-aqui",
+    "contador_inicial": 0
+  }
+}

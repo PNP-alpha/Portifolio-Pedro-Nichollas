@@ -1,0 +1,186 @@
+/* Reseta margens e define fonte profissional */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #525659; /* Fundo cinza escuro para a tela (estilo visualizador de PDF) */
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* O Botão Flutuante de Imprimir */
+.btn-print {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #00ff88;
+    color: #0a0a0a;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+    transition: transform 0.2s;
+    z-index: 1000;
+}
+
+.btn-print:hover {
+    transform: scale(1.05);
+}
+
+/* Configuração da "Folha de Papel A4" na tela */
+.page {
+    background-color: white;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 40px auto;
+    padding: 15mm 20mm;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Cabeçalho do CV */
+.cv-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+#cv-name {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#cv-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #007bb5; /* Um azul sóbrio para destacar o cargo */
+    margin-bottom: 15px;
+}
+
+.contact-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 11px;
+    color: #555;
+}
+
+.contact-info span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Grid Principal (2 colunas) */
+.cv-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+/* Seções */
+.cv-section {
+    margin-bottom: 25px;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #000;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+.summary-text {
+    font-size: 13px;
+    color: #444;
+    text-align: justify;
+}
+
+/* Blocos de Itens (Empregos, Cursos) */
+.item-block {
+    margin-bottom: 15px;
+}
+
+.item-block.small-margin {
+    margin-bottom: 8px;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+}
+
+.item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+}
+
+.item-subtitle {
+    font-size: 13px;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.item-date {
+    font-size: 11px;
+    font-weight: 600;
+    color: #007bb5;
+}
+
+.item-desc {
+    font-size: 12px;
+    color: #444;
+    line-height: 1.4;
+    text-align: justify;
+}
+
+.text-sm {
+    font-size: 12px;
+}
+
+/* ==========================================
+   CONFIGURAÇÃO DE IMPRESSÃO (O Segredo)
+   ========================================== */
+@media print {
+    /* Esconde o botão de imprimir e a cor de fundo cinza */
+    body { background-color: white; }
+    .btn-print { display: none; }
+    
+    /* Remove sombras e margens da "folha" para a impressora usar a folha real */
+    .page {
+        margin: 0;
+        box-shadow: none;
+        width: 100%;
+        padding: 10mm; /* Margem interna menor para caber mais coisa */
+    }
+
+    /* Força a folha a ser A4 */
+    @page {
+        size: A4;
+        margin: 0; 
+    }
+
+    /* Impede que blocos quebrem no meio da página */
+    .item-block, .cv-section {
+        page-break-inside: avoid;
+    }
+}

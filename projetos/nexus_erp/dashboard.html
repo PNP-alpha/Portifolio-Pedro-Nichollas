@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus ERP | Enterprise v7.0 Full</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Estilos Globais */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #e2e8f0; 
+            overflow: hidden; 
+        }
+        .font-tech { font-family: 'Orbitron', sans-serif; }
+        
+        /* Glassmorphism */
+        .glass { 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.05); 
+        }
+        
+        /* Scrollbar Personalizada */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }
+
+        /* Animações de View */
+        .view-section { display: none; animation: fadeIn 0.3s ease-out; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Modais */
+        .modal { 
+            transition: opacity 0.3s ease, visibility 0.3s ease; 
+            opacity: 0; 
+            visibility: hidden; 
+            pointer-events: none; 
+        }
+        .modal.active { 
+            opacity: 1; 
+            visibility: visible; 
+            pointer-events: all; 
+        }
+
+        /* Leaflet Popup Dark Theme */
+        .leaflet-popup-content-wrapper { 
+            background: #1e293b; 
+            color: #fff; 
+            border: 1px solid #3b82f6; 
+            border-radius: 8px; 
+        }
+        .leaflet-popup-tip { background: #3b82f6; }
+        .leaflet-popup-content { margin: 10px; line-height: 1.5; }
+
+        /* Toast Notifications */
+        #toast-container { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 10000; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        .toast { 
+            background: rgba(15, 23, 42, 0.95); 
+            border-left: 4px solid; 
+            padding: 15px 20px; 
+            border-radius: 4px; 
+            transform: translateX(100%); 
+            transition: transform 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            min-width: 300px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toast.show { transform: translateX(0); }
+        .toast-success { border-color: #22c55e; } 
+        .toast-error { border-color: #ef4444; } 
+        .toast-info { border-color: #3b82f6; }
+        .toast-warning { border-color: #f59e0b; }
+    </style>
+</head>
+<body class="flex h-screen bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+
+    <div id="toast-container"></div>
+
+    <aside class="w-64 glass flex flex-col z-50 border-r border-slate-700/50" id="sidebar">
+        <div class="h-20 flex items-center px-6 border-b border-slate-700/50">
+            <i class="fa-solid fa-cube text-blue-500 text-2xl mr-3 animate-pulse"></i>
+            <div>
+                <h1 class="font-tech text-lg font-bold text-white tracking-widest">NEXUS</h1>
+                <p class="text-[10px] text-slate-500 uppercase">Enterprise v7.0</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+            <div class="px-4 py-2 mb-2">
+                <button onclick="app.openSearch()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-xs text-slate-400 py-1.5 px-3 flex justify-between items-center transition">
+                    <span><i class="fa-solid fa-magnifying-glass mr-2"></i> Buscar...</span>
+                    <span class="bg-slate-900 px-1.5 rounded text-[10px] border border-slate-600">Ctrl K</span>
+                </button>
+            </div>
+
+            <p class="px-4 text-[10px] uppercase text-slate-500 font-bold mb-2 mt-2">Operacional</p>
+            <button onclick="app.switchView('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-blue-400 rounded-lg transition active">
+                <i class="fa-solid fa-chart-pie w-5 mr-3"></i> <span class="text-sm font-semibold">Visão Geral</span>
+            </button>
+            <button onclick="app.switchView('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-blue-400 rounded-lg transition">
+                <i class="fa-solid fa-boxes-stacked w-5 mr-3"></i> <span class="text-sm">Estoque WMS</span>
+            </button>
+            <button onclick="app.switchView('fleet')" id="nav-fleet" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-blue-400 rounded-lg transition">
+                <i class="fa-solid fa-map-location-dot w-5 mr-3"></i> <span class="text-sm">Frota TMS</span>
+            </button>
+            
+            <p class="px-4 text-[10px] uppercase text-slate-500 font-bold mb-2 mt-4">Corporativo</p>
+            <button onclick="app.switchView('finance')" id="nav-finance" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-green-400 rounded-lg transition">
+                <i class="fa-solid fa-coins w-5 mr-3"></i> <span class="text-sm">Financeiro</span>
+            </button>
+            <button onclick="app.switchView('crm')" id="nav-crm" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-yellow-400 rounded-lg transition">
+                <i class="fa-solid fa-users w-5 mr-3"></i> <span class="text-sm">CRM Clientes</span>
+            </button>
+            <button onclick="app.switchView('hr')" id="nav-hr" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-pink-400 rounded-lg transition">
+                <i class="fa-solid fa-id-badge w-5 mr-3"></i> <span class="text-sm">RH Equipe</span>
+            </button>
+            
+            <p class="px-4 text-[10px] uppercase text-slate-500 font-bold mb-2 mt-4">Inteligência</p>
+            <button onclick="app.switchView('insights')" id="nav-insights" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-purple-400 rounded-lg transition">
+                <i class="fa-solid fa-lightbulb w-5 mr-3"></i> <span class="text-sm">Insights IA</span>
+            </button>
+            <button onclick="app.switchView('audit')" id="nav-audit" class="nav-btn w-full flex items-center px-4 py-2.5 text-slate-400 hover:text-red-400 rounded-lg transition">
+                <i class="fa-solid fa-shield-halved w-5 mr-3"></i> <span class="text-sm">Auditoria</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-700/50 bg-slate-900/50">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white ring-2 ring-blue-500/30">AD</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate" id="userName">Admin</p>
+                    <button onclick="app.logout()" class="text-xs text-red-400 hover:text-red-300 transition">Encerrar Sessão</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full relative bg-slate-900/95">
+        
+        <header class="h-16 glass border-b border-slate-700/50 flex justify-between items-center px-6 shrink-0">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#22c55e]"></span>
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wide">Nexus Online</span>
+            </div>
+            <div class="font-mono text-blue-400 text-sm font-bold" id="clock">00:00:00</div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 scroll-smooth relative">
+
+            <section id="view-dashboard" class="view-section active">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="glass p-5 rounded-xl border-l-4 border-blue-500 hover:bg-slate-800/50 transition">
+                        <h3 class="text-2xl font-bold text-white" id="kpi-stock">R$ 0,00</h3>
+                        <p class="text-xs text-slate-400 uppercase font-bold">Patrimônio Estoque</p>
+                    </div>
+                    <div class="glass p-5 rounded-xl border-l-4 border-green-500 hover:bg-slate-800/50 transition">
+                        <h3 class="text-2xl font-bold text-white" id="kpi-rev">R$ 0,00</h3>
+                        <p class="text-xs text-slate-400 uppercase font-bold">Receita Mensal</p>
+                    </div>
+                    <div class="glass p-5 rounded-xl border-l-4 border-purple-500 hover:bg-slate-800/50 transition">
+                        <h3 class="text-2xl font-bold text-white" id="kpi-fleet">0</h3>
+                        <p class="text-xs text-slate-400 uppercase font-bold">Veículos Ativos</p>
+                    </div>
+                </div>
+                <div class="glass p-0 rounded-xl border border-slate-700 h-96 relative overflow-hidden">
+                    <h3 class="text-slate-200 font-bold text-xs absolute z-[400] top-4 left-4 bg-slate-900/90 px-3 py-1 rounded border border-slate-600">Monitoramento Global</h3>
+                    <div id="miniMap" class="w-full h-full"></div>
+                </div>
+            </section>
+
+            <section id="view-inventory" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Estoque (WMS)</h2>
+                    <div class="flex gap-2">
+                        <button onclick="app.exportData('inventory')" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> CSV
+                        </button>
+                        <button onclick="app.openModal('product')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-plus"></i> Novo Item
+                        </button>
+                    </div>
+                </div>
+                <div class="glass rounded-xl overflow-hidden border border-slate-700">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="bg-slate-800 text-slate-200 uppercase text-xs">
+                            <tr>
+                                <th class="px-6 py-4">Produto</th>
+                                <th class="px-6 py-4">Local</th>
+                                <th class="px-6 py-4">Preço</th>
+                                <th class="px-6 py-4">Qtd</th>
+                                <th class="px-6 py-4 text-right">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody" class="divide-y divide-slate-700"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-fleet" class="view-section h-full flex flex-col">
+                <h2 class="text-2xl font-bold text-white mb-4">Gestão de Frota (TMS)</h2>
+                <div class="flex flex-col lg:flex-row gap-4 h-[600px]">
+                    <div class="w-full lg:w-1/3 glass rounded-xl p-4 overflow-y-auto border border-slate-700" id="fleet-list"></div>
+                    <div class="w-full lg:w-2/3 glass rounded-xl border border-slate-700 relative overflow-hidden">
+                        <div id="mainFleetMap" class="h-full w-full z-10"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-finance" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Financeiro</h2>
+                    <div class="flex gap-2">
+                        <button onclick="app.exportData('finance')" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> CSV
+                        </button>
+                        <button onclick="app.openModal('finance')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-dollar-sign"></i> Nova Transação
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="glass p-4 rounded-lg border border-slate-700">
+                        <p class="text-xs uppercase text-slate-500 font-bold">Saldo Global</p>
+                        <h3 class="text-xl font-bold text-blue-400" id="fin-total">R$ 0,00</h3>
+                    </div>
+                </div>
+                <div class="glass rounded-xl overflow-hidden border border-slate-700">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="bg-slate-800 text-slate-200 uppercase text-xs">
+                            <tr>
+                                <th class="px-6 py-4">Data</th> <th class="px-6 py-4">Tipo</th>
+                                <th class="px-6 py-4">Descrição</th>
+                                <th class="px-6 py-4">Logística</th>
+                                <th class="px-6 py-4 text-right">Valor</th>
+                                <th class="px-6 py-4 text-right">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financeTableBody" class="divide-y divide-slate-700"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-crm" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">CRM - Clientes</h2>
+                    <button onclick="app.openModal('crm')" class="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-user-plus"></i> Novo Cliente
+                    </button>
+                </div>
+                <div class="glass rounded-xl overflow-hidden border border-slate-700">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="bg-slate-800 text-slate-200">
+                            <tr>
+                                <th class="px-6 py-4">Empresa</th>
+                                <th class="px-6 py-4">Contato</th>
+                                <th class="px-6 py-4">Email</th>
+                                <th class="px-6 py-4 text-right">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crmTableBody" class="divide-y divide-slate-700"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-hr" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Recursos Humanos</h2>
+                    <button onclick="app.openModal('hr')" class="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-id-badge"></i> Novo Colaborador
+                    </button>
+                </div>
+                <div class="glass rounded-xl overflow-hidden border border-slate-700">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="bg-slate-800 text-slate-200">
+                            <tr>
+                                <th class="px-6 py-4">Nome</th>
+                                <th class="px-6 py-4">Cargo</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-right">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hrTableBody" class="divide-y divide-slate-700"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-insights" class="view-section">
+                <h2 class="text-2xl font-bold text-white mb-6">Smart Insights (BI)</h2>
+                
+                <div class="glass p-6 rounded-xl border border-purple-500/30 mb-6 bg-gradient-to-r from-slate-900 to-slate-800">
+                    <h3 class="text-purple-400 font-bold text-sm uppercase mb-2">
+                        <i class="fa-solid fa-robot mr-2"></i> Análise de IA
+                    </h3>
+                    <p class="text-slate-200 text-lg leading-relaxed" id="ai-text">Carregando análise do sistema...</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-5 rounded-xl border border-slate-700 h-80 relative">
+                        <h3 class="text-slate-300 font-bold text-xs uppercase mb-4">Composição de Receita</h3>
+                        <div class="absolute inset-x-5 bottom-5 top-12">
+                            <canvas id="chartDoughnut"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass p-5 rounded-xl border border-slate-700 h-80 relative">
+                        <h3 class="text-slate-300 font-bold text-xs uppercase mb-4">Tendência Financeira (6 Meses)</h3>
+                        <div class="absolute inset-x-5 bottom-5 top-12">
+                            <canvas id="chartBar"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-audit" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Logs de Auditoria e Segurança</h2>
+                    <button onclick="app.exportData('auditLog')" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-xs">
+                        <i class="fa-solid fa-download"></i> Log Completo
+                    </button>
+                </div>
+                <div class="glass rounded-xl overflow-hidden border border-slate-700">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="bg-slate-800 text-slate-200">
+                            <tr>
+                                <th class="px-6 py-4">Data/Hora</th>
+                                <th class="px-6 py-4">Usuário</th>
+                                <th class="px-6 py-4">Ação</th>
+                                <th class="px-6 py-4">Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody" class="divide-y divide-slate-700 font-mono text-xs"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div id="modal-product" class="modal fixed inset-0 z-[9000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-800 w-full max-w-md p-6 rounded-xl border border-slate-600 shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Novo Produto</h3>
+            <form onsubmit="app.saveProduct(event)" class="space-y-3">
+                <input id="prodName" type="text" placeholder="Nome do Produto" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none" required>
+                <input id="prodLoc" type="text" placeholder="Localização (Ex: A-01)" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none" required>
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="prodPrice" type="number" step="0.01" placeholder="Preço (R$)" class="bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none" required>
+                    <input id="prodStock" type="number" placeholder="Quantidade" class="bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none" required>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="app.closeModal('product')" class="flex-1 bg-slate-700 text-white p-2 rounded hover:bg-slate-600">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white p-2 rounded hover:bg-blue-500">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-finance" class="modal fixed inset-0 z-[9000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-800 w-full max-w-2xl p-6 rounded-xl border border-slate-600 shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Nova Transação & Logística</h3>
+            <form onsubmit="app.saveFinance(event)" class="grid grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <h4 class="text-blue-400 text-xs font-bold uppercase border-b border-slate-700 pb-1">Dados da Transação</h4>
+                    
+                    <div>
+                        <label class="text-[10px] text-slate-400 uppercase font-bold">Data de Ocorrência</label>
+                        <input id="finDate" type="date" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none" required>
+                    </div>
+
+                    <select id="finType" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none">
+                        <option value="Venda">Venda (Receita)</option>
+                        <option value="Locacao">Locação (Receita)</option>
+                        <option value="Compra">Compra (Despesa)</option>
+                        <option value="Operacional">Despesa Operacional</option>
+                    </select>
+                    <input id="finDesc" type="text" placeholder="Descrição (Ex: Venda Servidor Dell)" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none" required>
+                    <input id="finVal" type="number" step="0.01" placeholder="Valor (R$)" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-blue-500 outline-none" required>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-green-400 text-xs font-bold uppercase border-b border-slate-700 pb-1">Logística de Entrega</h4>
+                    
+                    <select id="finClient" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-green-500 outline-none">
+                        </select>
+                    
+                    <select id="finVehicle" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-green-500 outline-none" onchange="app.toggleLogisticsFields()">
+                        <option value="-">Sem Transporte (Serviço/Retirada)</option>
+                        </select>
+
+                    <div id="logisticsRoute" class="hidden space-y-2 border-l-2 border-green-500/30 pl-2">
+                        <input id="finOrigin" type="text" placeholder="Local de Coleta (Origem)" class="w-full bg-slate-900 p-2 rounded text-white text-xs border border-slate-700">
+                        <input id="finDest" type="text" placeholder="Local de Entrega (Destino)" class="w-full bg-slate-900 p-2 rounded text-white text-xs border border-slate-700">
+                        <p class="text-[10px] text-slate-500">*Atualizará a rota do veículo selecionado.</p>
+                    </div>
+                </div>
+
+                <div class="col-span-2 flex gap-2 pt-4 border-t border-slate-700 mt-2">
+                    <button type="button" onclick="app.closeModal('finance')" class="flex-1 bg-slate-700 text-white p-2 rounded hover:bg-slate-600">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-green-600 text-white p-2 rounded hover:bg-green-500 font-bold">Salvar Transação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-crm" class="modal fixed inset-0 z-[9000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-800 w-full max-w-md p-6 rounded-xl border border-slate-600 shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Novo Cliente</h3>
+            <form onsubmit="app.saveCRM(event)" class="space-y-3">
+                <input id="crmCompany" type="text" placeholder="Nome da Empresa" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-yellow-500 outline-none" required>
+                <input id="crmContact" type="text" placeholder="Pessoa de Contato" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-yellow-500 outline-none" required>
+                <input id="crmEmail" type="email" placeholder="Email Corporativo" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-yellow-500 outline-none" required>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="app.closeModal('crm')" class="flex-1 bg-slate-700 text-white p-2 rounded hover:bg-slate-600">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-yellow-600 text-white p-2 rounded hover:bg-yellow-500">Salvar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-hr" class="modal fixed inset-0 z-[9000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-800 w-full max-w-md p-6 rounded-xl border border-slate-600 shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Novo Colaborador</h3>
+            <form onsubmit="app.saveHR(event)" class="space-y-3">
+                <input id="hrName" type="text" placeholder="Nome Completo" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-pink-500 outline-none" required>
+                <select id="hrRole" class="w-full bg-slate-900 p-2 rounded text-white border border-slate-700 focus:border-pink-500 outline-none">
+                    <option>Motorista</option>
+                    <option>Analista TI</option>
+                    <option>Gerente</option>
+                    <option>Estoquista</option>
+                    <option>Vendedor</option>
+                </select>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="app.closeModal('hr')" class="flex-1 bg-slate-700 text-white p-2 rounded hover:bg-slate-600">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-pink-600 text-white p-2 rounded hover:bg-pink-500">Contratar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-search" class="modal fixed inset-0 z-[10000] flex items-start justify-center pt-20 search-backdrop" style="background:rgba(0,0,0,0.8);backdrop-filter:blur(3px);">
+        <div class="bg-slate-800 w-full max-w-lg rounded-xl border border-slate-600 shadow-2xl overflow-hidden transform transition-all scale-100">
+            <div class="border-b border-slate-700 p-3 flex items-center gap-3">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 text-lg"></i>
+                <input id="searchInput" type="text" placeholder="Digite para buscar (ex: Financeiro, Novo Cliente, Relatório)..." class="bg-transparent w-full text-white outline-none h-8 text-sm" autocomplete="off">
+                <span class="text-[10px] bg-slate-700 text-slate-400 px-1.5 rounded border border-slate-600 cursor-pointer hover:bg-slate-600 transition" onclick="app.closeModal('search')">ESC</span>
+            </div>
+            <div id="searchResults" class="max-h-[300px] overflow-y-auto p-2 space-y-1">
+                <div class="p-4 text-center text-slate-500 text-xs">Comece a digitar para navegar...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

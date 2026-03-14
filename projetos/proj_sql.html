@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataForge IDE v4 | PNP System</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Consolas&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ++++++++++++++++================== TEMA & CORES ======================+++++++++++++++ */
+        :root { 
+            --accent: #ffae00; 
+            --bg: #1e1e1e; 
+            --panel: #252526; 
+            --text: #cccccc; 
+            --border: #333; 
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            display: grid; 
+            grid-template-rows: 40px 1fr 25px; 
+            overflow: hidden; 
+        }
+
+        /* ++++++++++++++++================== BARRA SUPERIOR ======================+++++++++++++++ */
+        .top-bar { 
+            background: #2d2d2d; 
+            border-bottom: 1px solid var(--accent); 
+            display: flex; 
+            align-items: center; 
+            padding: 0 15px; 
+            justify-content: space-between; 
+        }
+        .logo { font-family: 'Orbitron'; color: var(--accent); font-weight: bold; }
+        
+        .btn-run { 
+            position: absolute; top: 5px; right: 20px; 
+            background: var(--accent); color: #000; border: none; 
+            padding: 5px 15px; font-weight: bold; cursor: pointer; 
+            font-size: 0.8rem; border-radius: 3px; z-index: 50; 
+            transition: 0.2s; 
+        }
+        .btn-run:hover { box-shadow: 0 0 10px var(--accent); transform: scale(1.05); }
+
+        /* ++++++++++++++++================== LAYOUT WORKSPACE ======================+++++++++++++++ */
+        .workspace { display: grid; grid-template-columns: 250px 1fr; height: 100%; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .sidebar-header { 
+            padding: 15px 10px 5px 10px; font-size: 0.7rem; font-weight: bold; 
+            text-transform: uppercase; color: #888; display: flex; 
+            justify-content: space-between; align-items: center; 
+        }
+        
+        .file-item { 
+            padding: 8px 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; 
+            font-size: 0.9rem; border-left: 2px solid transparent; transition: 0.2s; 
+        }
+        .file-item:hover { background: #37373d; color: #fff; }
+        .file-item.active { background: #37373d; color: var(--accent); border-left: 2px solid var(--accent); }
+
+        /* ++++++++++++++++================== EDITOR DE CÓDIGO ======================+++++++++++++++ */
+        .editor-pane { display: grid; grid-template-rows: 35px 1fr 1fr; height: 100%; }
+        
+        .tabs { display: flex; background: #2d2d2d; border-bottom: 1px solid var(--border); }
+        .tab { padding: 8px 15px; font-size: 0.8rem; background: #2d2d2d; color: #888; border-right: 1px solid var(--border); cursor: pointer; }
+        .tab.active { background: #1e1e1e; color: var(--accent); border-top: 2px solid var(--accent); }
+
+        .code-area { 
+            background: #1e1e1e; padding: 15px; font-family: 'Consolas', monospace; 
+            color: #d4d4d4; border: none; outline: none; resize: none; font-size: 14px; 
+            border-bottom: 1px solid var(--border); line-height: 1.5; 
+        }
+        
+        /* ++++++++++++++++================== GRID DE RESULTADOS ======================+++++++++++++++ */
+        .results-area { background: #1e1e1e; overflow: auto; display: flex; flex-direction: column; }
+        
+        .results-toolbar { 
+            padding: 5px 10px; background: #252526; display: flex; gap: 10px; 
+            border-bottom: 1px solid var(--border); align-items: center; 
+        }
+        
+        .btn-tool { background: #333; color: #fff; border: 1px solid #444; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; border-radius: 3px; }
+        .btn-tool:hover { background: var(--accent); color: #000; }
+
+        table { width: 100%; border-collapse: collapse; font-family: 'Consolas'; font-size: 0.85rem; }
+        th { background: #2d2d2d; text-align: left; padding: 8px 10px; border: 1px solid #333; color: var(--accent); position: sticky; top: 0; }
+        td { border: 1px solid #333; padding: 8px 10px; color: #bbb; white-space: nowrap; }
+        tr:nth-child(even) { background: #252526; }
+        tr:hover { background: #333; color: #fff; }
+
+        .log-success { color: #4caf50; padding: 20px; font-family: 'Consolas'; }
+        .log-error { color: #f44336; padding: 20px; font-family: 'Consolas'; }
+
+        /* ++++++++++++++++================== BARRA DE STATUS ======================+++++++++++++++ */
+        .status-bar { background: var(--accent); color: #000; font-size: 0.75rem; display: flex; justify-content: space-between; padding: 0 10px; align-items: center; font-weight: bold; }
+        .btn-back { color: #000; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="logo"><i class="fa-solid fa-layer-group"></i> DATAFORGE IDE v4.0</div>
+        <div style="position: relative;">
+            <button class="btn-run" onclick="runQuery()"><i class="fa-solid fa-play"></i> RUN (F5)</button>
+        </div>
+    </div>
+
+    <div class="workspace">
+        
+        <div class="sidebar">
+            <div class="sidebar-header">CONNECTIONS</div>
+            <div class="file-item active"><i class="fa-solid fa-server text-green-500"></i> ORACLE_CLOUD_DB</div>
+            
+            <div class="sidebar-header">
+                <span>TABLES</span>
+                <i class="fa-solid fa-refresh" style="cursor:pointer;" onclick="renderSidebar()" title="Refresh"></i>
+            </div>
+            <div id="tableList"></div>
+
+            <div class="sidebar-header" style="margin-top: 20px;">SAVED SCRIPTS</div>
+            <div class="file-item" onclick="loadScript('select')"><i class="fa-solid fa-file-code text-blue-400"></i> query_users.sql</div>
+            <div class="file-item" onclick="loadScript('create')"><i class="fa-solid fa-plus text-green-400"></i> create_table.sql</div>
+        </div>
+
+        <div class="editor-pane">
+            <div class="tabs">
+                <div class="tab active">query_editor.sql</div>
+                <div class="tab">schema_log.txt</div>
+            </div>
+            
+            <textarea class="code-area" id="sqlInput" spellcheck="false" placeholder="Digite seu comando SQL aqui... (Ex: SELECT * FROM TB_CLIENTES)">SELECT * FROM TB_CLIENTES;</textarea>
+
+            <div class="results-area">
+                <div class="results-toolbar">
+                    <span style="font-size:0.75rem; color:#888; margin-right:auto;">STATUS: <span id="statusMsg" style="color:var(--accent)">READY</span> | ROWS: <span id="rowCount">0</span></span>
+                    <button class="btn-tool" onclick="exportData('csv')"><i class="fa-solid fa-file-csv"></i> CSV</button>
+                    <button class="btn-tool" onclick="exportData('json')"><i class="fa-solid fa-file-code"></i> JSON</button>
+                </div>
+                <div id="gridContainer">
+                    <div style="padding:20px; color:#666; text-align:center; font-family:'Consolas'; margin-top: 20px;">
+                        <i class="fa-solid fa-database" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i>
+                        Waiting for query execution...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span><i class="fa-solid fa-plug-circle-check"></i> Session ID: OCI-9982-X</span>
+        <a href="../index.html" class="btn-back"><i class="fa-solid fa-arrow-right-from-bracket"></i> EXIT SYSTEM</a>
+    </div>
+
+    <script>
+        // ++++++++++++++++================== MOCK DATABASE ENGINE ======================+++++++++++++++
+        let dbState = {
+            "TB_CLIENTES": [
+                { id: 101, nome: "Pedro Silva", email: "pedro@gmail.com", status: "ATIVO" },
+                { id: 102, nome: "Ana Costa", email: "ana@hotmail.com", status: "ATIVO" },
+                { id: 103, nome: "Carlos Souza", email: "carlos@uol.com", status: "INATIVO" }
+            ],
+            "TB_PRODUTOS": [
+                { id: 1, item: "Notebook Dell", estoque: 15, preco: 4500.00 },
+                { id: 2, item: "Mouse Logitech", estoque: 50, preco: 120.00 },
+                { id: 3, item: "Monitor LG 29", estoque: 8, preco: 1200.00 }
+            ],
+            "TB_LOGS": [
+                { id: 991, evento: "LOGIN_SUCCESS", data: "2026-02-10" },
+                { id: 992, evento: "UPDATE_FAIL", data: "2026-02-11" }
+            ]
+        };
+
+        // ++++++++++++++++================== INICIALIZAÇÃO ======================+++++++++++++++
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSidebar();
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F5') {
+                    e.preventDefault();
+                    runQuery();
+                }
+            });
+        });
+
+        // ++++++++++++++++================== UI CONTROLLERS ======================+++++++++++++++
+        function renderSidebar() {
+            const list = document.getElementById('tableList');
+            list.innerHTML = ''; 
+
+            const tables = Object.keys(dbState);
+            
+            if(tables.length === 0) {
+                list.innerHTML = '<div style="padding:10px; font-size:0.8rem; color:#666;">No tables found</div>';
+                return;
+            }
+
+            tables.forEach(tableName => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<i class="fa-solid fa-table text-yellow-500"></i> ${tableName}`;
+                div.onclick = () => {
+                    document.getElementById('sqlInput').value = `SELECT * FROM ${tableName};`;
+                    runQuery();
+                };
+                list.appendChild(div);
+            });
+        }
+
+        // ++++++++++++++++================== SQL PARSER & EXECUTOR ======================+++++++++++++++
+        function runQuery() {
+            const rawSql = document.getElementById('sqlInput').value.trim();
+            const grid = document.getElementById('gridContainer');
+            const statusMsg = document.getElementById('statusMsg');
+            const count = document.getElementById('rowCount');
+
+            if(!rawSql) return;
+
+            // Loading UI
+            grid.innerHTML = '<div style="padding:20px; text-align:center; color:var(--accent);">Processing Query... <i class="fa-solid fa-spinner fa-spin"></i></div>';
+            statusMsg.innerText = "EXECUTING...";
+
+            setTimeout(() => {
+                try {
+                    const sql = rawSql.toUpperCase();
+                    
+                    // --- PARSER: SELECT ---
+                    if (sql.startsWith('SELECT')) {
+                        const parts = sql.split('FROM');
+                        if(parts.length < 2) throw new Error("Syntax Error: Missing FROM clause");
+                        
+                        let tableName = parts[1].trim().split(' ')[0].replace(';', '');
+                        
+                        if(dbState[tableName]) {
+                            renderTable(dbState[tableName]);
+                            statusMsg.innerText = "SUCCESS";
+                            count.innerText = dbState[tableName].length;
+                        } else {
+                            throw new Error(`ORA-00942: table or view '${tableName}' does not exist`);
+                        }
+                    } 
+                    
+                    // --- PARSER: CREATE TABLE ---
+                    else if (sql.startsWith('CREATE TABLE')) {
+                        const regex = /CREATE TABLE\s+(\w+)/i;
+                        const match = sql.match(regex);
+                        
+                        if(match && match[1]) {
+                            const newTable = match[1];
+                            if(dbState[newTable]) throw new Error(`ORA-00955: name is already used by an existing object`);
+                            
+                            dbState[newTable] = []; 
+                            renderSidebar(); 
+                            
+                            grid.innerHTML = `<div class="log-success">Table <b>${newTable}</b> created successfully.<br>Time: 0.05s</div>`;
+                            statusMsg.innerText = "CREATED";
+                            count.innerText = 0;
+                        } else {
+                            throw new Error("Syntax Error: Invalid CREATE statement");
+                        }
+                    }
+
+                    // --- PARSER: DROP TABLE ---
+                    else if (sql.startsWith('DROP TABLE')) {
+                        const tableName = sql.replace('DROP TABLE', '').replace(';', '').trim();
+                        
+                        if(dbState[tableName]) {
+                            delete dbState[tableName];
+                            renderSidebar(); 
+                            
+                            grid.innerHTML = `<div class="log-success">Table <b>${tableName}</b> dropped.<br>Storage reclaimed.</div>`;
+                            statusMsg.innerText = "DROPPED";
+                            count.innerText = 0;
+                        } else {
+                            throw new Error(`ORA-00942: table '${tableName}' does not exist`);
+                        }
+                    }
+
+                    // --- PARSER: INSERT ---
+                    else if (sql.startsWith('INSERT INTO')) {
+                        const regex = /INSERT INTO\s+(\w+)/i;
+                        const match = sql.match(regex);
+                        if(match && match[1] && dbState[match[1]]) {
+                             grid.innerHTML = `<div class="log-success">1 row inserted into <b>${match[1]}</b>.</div>`;
+                             statusMsg.innerText = "INSERTED";
+                             dbState[match[1]].push({ id: "NEW", status: "PENDING" });
+                             count.innerText = 1;
+                        } else {
+                            throw new Error("Target table not found or invalid syntax");
+                        }
+                    } else {
+                        throw new Error("ORA-00900: invalid SQL statement (Supported: SELECT, CREATE, DROP, INSERT)");
+                    }
+
+                } catch (err) {
+                    grid.innerHTML = `<div class="log-error"><b>ERROR:</b> ${err.message}</div>`;
+                    statusMsg.innerText = "FAILED";
+                    statusMsg.style.color = "#f44336";
+                }
+            }, 600);
+        }
+
+        // ++++++++++++++++================== UTILITÁRIOS ======================+++++++++++++++
+        function renderTable(data) {
+            if(!data || data.length === 0) {
+                document.getElementById('gridContainer').innerHTML = '<div style="padding:20px; color:#888;">Table is empty (0 rows).</div>';
+                return;
+            }
+            const headers = Object.keys(data[0]);
+            let html = '<table><thead><tr>';
+            headers.forEach(h => html += `<th>${h.toUpperCase()}</th>`);
+            html += '</tr></thead><tbody>';
+            data.forEach(row => {
+                html += '<tr>';
+                headers.forEach(h => html += `<td>${row[h]}</td>`);
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById('gridContainer').innerHTML = html;
+        }
+
+        function loadScript(type) {
+            const input = document.getElementById('sqlInput');
+            if(type === 'select') input.value = "SELECT * FROM TB_LOGS;";
+            if(type === 'create') input.value = "CREATE TABLE TB_NOVOS_USUARIOS (ID INT, NOME VARCHAR(100));";
+        }
+
+        function exportData(type) {
+            const status = document.getElementById('statusMsg').innerText;
+            if(status !== 'SUCCESS') return alert("Execute a valid SELECT query first.");
+            alert(`Download de ${type.toUpperCase()} iniciado com sucesso!`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Carregando...</title>
+    
+    <link rel="icon" type="image/jpg" href="assets/perfil.jpg">
+
+    <meta property="og:title" content="Pedro Nichollas | Portfólio Tech">
+    <meta property="og:description" content="Desenvolvedor Fullstack, Oracle ERP e Design. Confira meus projetos.">
+    <meta property="og:image" content="assets/perfil.jpg">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    
+    <div class="news-ticker-container">
+        <span class="ticker-label" id="ticker-label">LOADING...</span>
+        <div class="ticker-wrap">
+            <div class="ticker-move" id="news-feed">
+                <div class="ticker-item">Inicializando sistema...</div>
+            </div>
+        </div>
+    </div>
+   <aside class="gx-sidebar">
+        <div class="gx-logo">
+            <i class="fa-solid fa-gamepad"></i>
+        </div>
+        
+        <div class="gx-title">GAMES</div>
+        
+        <div class="gx-menu">
+            <a href="jogos/game_pong.html" target="_blank" class="gx-item" title="Neon Pong AI">
+                <i class="fa-solid fa-table-tennis-paddle-ball"></i>
+                <span class="gx-tooltip">NEON PONG</span>
+            </a>
+            <a href="jogos/game_snake.html" target="_blank" class="gx-item" title="Cyber Snake">
+                <i class="fa-solid fa-staff-snake"></i>
+                <span class="gx-tooltip">CYBER SNAKE</span>
+            </a>
+            <a href="jogos/game_tetris.html" target="_blank" class="gx-item" title="Neon Tetris">
+                <i class="fa-solid fa-cubes-stacked"></i>
+                <span class="gx-tooltip">NEON TETRIS</span>
+            </a>
+            <a href="jogos/game_memory.html" target="_blank" class="gx-item" title="Binary Memory">
+                <i class="fa-solid fa-microchip"></i>
+                <span class="gx-tooltip">BINARY MEMORY</span>
+            </a>
+        </div>
+    </aside>
+    <nav class="navbar">
+        <div class="left-section">
+            <div class="logo">PNP <span class="blink">_</span></div>
+            
+            <div class="radio-panel">
+                <div class="radio-screen">
+                    <span class="status-led"></span>
+                    <span id="radio-text">APERTE O PLAY</span>
+                </div>
+                
+                <div class="radio-keys">
+                    <button id="btn-play" class="mech-btn play-btn" title="Iniciar Transmissão">
+                        <span class="btn-face">▶</span>
+                    </button>
+                    <button id="btn-stop" class="mech-btn stop-btn" title="Encerrar">
+                        <span class="btn-face">■</span>
+                    </button>
+                </div>
+
+                <div class="vol-wrapper">
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.2">
+                </div>
+                
+                <audio id="live-radio" preload="none"></audio>
+            </div>
+
+            <div class="tools-group">
+                <div class="settings-panel">
+                    <button id="btn-settings" class="mech-btn settings-btn" title="Personalizar Tema">
+                        <span class="btn-face">⚙</span>
+                    </button>
+                    <div class="color-picker-tooltip" id="color-picker">
+                        <span class="picker-title">SYSTEM THEME</span>
+                        <div class="colors-grid" id="colors-container"></div>
+                    </div>
+                </div>
+
+                <button id="btn-contact-modal" class="mech-btn tool-btn" title="Enviar Mensagem">
+                    <span class="btn-face">✉</span>
+                </button>
+                <a href="cv.html?action=print" target="_blank" class="mech-btn tool-btn" title="Download CV">
+                    <span class="btn-face">⬇</span>
+                </a>
+
+                <div class="visitor-counter" title="Visitantes do Sistema">
+                    <span class="visit-icon">👁</span>
+                    <span id="visit-count">000000</span>
+                </div>
+            </div>
+        </div>
+
+        <ul class="menu" id="menu-dinamico">
+            </ul>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="profile-container" id="profile-stage">
+                <div class="spinner-ring"></div>
+                <img src="assets/perfil.jpg" alt="Foto de Perfil" class="profile-pic">
+            </div>
+            
+            <h1 id="perfil-nome">Carregando...</h1>
+            <p class="role-text" id="perfil-cargos"></p>
+            <p class="subtitle-text" id="perfil-resumo"></p>
+            
+            <div class="stats">
+                <span class="stat-number" id="perfil-numero"></span>
+                <span class="stat-label" id="perfil-nas"></span>
+            </div>
+        </div>
+    </section>
+
+    <section id="projetos" class="section">
+        <h2 class="section-title" id="tit-projetos">MEUS PROJETOS</h2>
+        <div class="grid-container" id="container-projetos"></div>
+    </section>
+
+    <section id="formacao" class="section">
+        <h2 class="section-title" id="tit-formacao">FORMAÇÃO</h2>
+        <div class="timeline" id="container-formacao"></div>
+    </section>
+
+    <section id="carreira" class="section">
+        <h2 class="section-title" id="tit-carreira">CARREIRA</h2>
+        <div class="timeline" id="container-carreira"></div>
+    </section>
+
+    <section id="certificados" class="section">
+        <h2 class="section-title" id="tit-certificados">CERTIFICAÇÕES</h2>
+        <div class="grid-container" id="container-certificados"></div>
+    </section>
+
+    <section id="contato" class="section">
+        <h2 class="section-title" id="tit-contato">CONTATO</h2>
+        <div class="contact-container" id="container-contato"></div>
+    </section>
+
+    <footer>
+        <p id="footer-text">Desenvolvido por Pedro Nichollas © 2026</p>
+    </footer>
+
+    <div id="contact-modal" class="modal-overlay">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3>NOVA MENSAGEM</h3>
+                <button id="close-modal" class="close-btn">×</button>
+            </div>
+            <form id="contact-form">
+                <div class="form-group">
+                    <label>IDENTIFICAÇÃO (NOME):</label>
+                    <input type="text" name="name" required placeholder="Digite seu nome...">
+                </div>
+                <div class="form-group">
+                    <label>EMAIL:</label>
+                    <input type="email" name="email" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>MENSAGEM:</label>
+                    <textarea name="message" required placeholder="Digite sua mensagem..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">ENVIAR MENSAGEM >></button>
+            </form>
+        </div>
+    </div>
+
+    <canvas id="matrix-canvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

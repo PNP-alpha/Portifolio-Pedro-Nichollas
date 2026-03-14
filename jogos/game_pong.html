@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Neon Pong | PNP Arcade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00ff88; --bg: #050505; }
+        body { 
+            margin: 0; background: var(--bg); height: 100vh; overflow: hidden;
+            font-family: 'Orbitron', sans-serif;
+        }
+        canvas { display: block; background: #000; }
+        
+        /* UI Sobreposta */
+        .ui-layer { position: absolute; top: 20px; width: 100%; text-align: center; color: var(--neon); pointer-events: none; z-index: 5; }
+        .score { font-size: 4rem; margin-top: 10px; text-shadow: 0 0 10px var(--neon); }
+        
+        /* Menu */
+        #menu-screen {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 10;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        h1 { font-size: 5rem; color: var(--neon); margin-bottom: 50px; text-shadow: 0 0 20px var(--neon); }
+        .btn {
+            background: transparent; border: 2px solid var(--neon); color: var(--neon);
+            padding: 15px 50px; font-size: 1.5rem; margin: 10px; cursor: pointer;
+            font-family: 'Orbitron'; transition: 0.3s; width: 350px;
+        }
+        .btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 30px var(--neon); }
+
+        .back-btn { 
+            position: absolute; top: 20px; left: 20px; color: var(--neon); 
+            text-decoration: none; border: 1px solid var(--neon); padding: 10px 20px;
+            font-weight: bold; transition: 0.3s; z-index: 20; pointer-events: all;
+        }
+        .back-btn:hover { background: var(--neon); color: #000; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-btn">SAIR</a>
+    
+    <div class="ui-layer">
+        <div class="score"><span id="pScore">0</span> - <span id="aiScore">0</span></div>
+    </div>
+
+    <div id="menu-screen">
+        <h1>NEON PONG</h1>
+        <button class="btn" onclick="startGame(4)">EASY</button>
+        <button class="btn" onclick="startGame(7)">MEDIUM</button>
+        <button class="btn" onclick="startGame(12)">IMPOSSIBLE</button>
+    </div>
+    
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let animationId;
+        
+        // Ajuste Tela Cheia
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const ball = { x: canvas.width/2, y: canvas.height/2, r: 15, dx: 10, dy: 10, speed: 10 };
+        const player = { x: 20, y: canvas.height/2 - 75, w: 20, h: 150, score: 0 };
+        const ai = { x: canvas.width - 40, y: canvas.height/2 - 75, w: 20, h: 150, score: 0, speed: 5 };
+
+        // Mouse Control
+        canvas.addEventListener('mousemove', (e) => {
+            player.y = e.clientY - player.h / 2;
+        });
+
+        function drawRect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, w, h);
+            ctx.shadowBlur = 20; ctx.shadowColor = color;
+        }
+        function drawCircle(x, y, r, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2; ball.y = canvas.height / 2;
+            ball.dx = -ball.dx; ball.speed = 10;
+        }
+
+        function update() {
+            ball.x += ball.dx; ball.y += ball.dy;
+
+            // Paredes
+            if(ball.y + ball.r > canvas.height || ball.y - ball.r < 0) ball.dy = -ball.dy;
+
+            // AI Logic
+            let targetY = ball.y - ai.h / 2;
+            ai.y += (targetY - ai.y) * (ai.speed * 0.02); // Fator de suavização
+
+            // Colisões Paddle
+            let playerHit = (ball.x < canvas.width / 2) ? player : ai;
+            
+            if (ball.x - ball.r < playerHit.x + playerHit.w && ball.x + ball.r > playerHit.x &&
+                ball.y > playerHit.y && ball.y < playerHit.y + playerHit.h) {
+                
+                let collidePoint = (ball.y - (playerHit.y + playerHit.h/2)) / (playerHit.h/2);
+                let angleRad = (Math.PI/4) * collidePoint;
+                let direction = (ball.x < canvas.width / 2) ? 1 : -1;
+                
+                ball.dx = direction * ball.speed * Math.cos(angleRad);
+                ball.dy = ball.speed * Math.sin(angleRad);
+                ball.speed += 0.5;
+            }
+
+            // Score
+            if(ball.x < 0) { ai.score++; resetBall(); document.getElementById('aiScore').innerText = ai.score; }
+            if(ball.x > canvas.width) { player.score++; resetBall(); document.getElementById('pScore').innerText = player.score; }
+        }
+
+        function render() {
+            // Limpa com rastro
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            drawRect(canvas.width/2 - 1, 0, 2, canvas.height, "#222"); // Rede
+            drawRect(player.x, player.y, player.w, player.h, "#00ff88");
+            drawRect(ai.x, ai.y, ai.w, ai.h, "#ff0055");
+            drawCircle(ball.x, ball.y, ball.r, "#fff");
+        }
+
+        function loop() {
+            update(); render(); animationId = requestAnimationFrame(loop);
+        }
+
+        function startGame(difficulty) {
+            ai.speed = difficulty; // Define velocidade da AI
+            document.getElementById('menu-screen').style.display = 'none';
+            loop();
+        }
+
+        // Resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            ai.x = canvas.width - 40;
+        });
+    </script>
+</body>
+</html>
