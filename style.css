@@ -634,81 +634,121 @@ footer {
 }
 
 /* =========================================================
-   📱 MODO MOBILE DEFINITIVO (Telas menores que 768px)
+   📱 UX MOBILE IMPECÁVEL (Telas menores que 900px)
    ========================================================= */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     
-    /* 1. TRAVA CIRÚRGICA DA RÁDIO (Fim dos tremores) */
-    .radio-screen {
-        width: 100% !important;
-        max-width: 250px !important;
-        flex-grow: 0;
-        overflow: hidden; /* Esconde o que vazar */
+    /* 1. TOPO LIMPO E MENU FLUIDO */
+    .navbar { 
+        flex-direction: column; 
+        height: auto; 
+        padding: 15px; 
     }
     
+    .left-section { 
+        width: 100%; 
+        justify-content: center; /* Centraliza o Logo */
+        margin-bottom: 10px; 
+    }
+    
+    .logo { margin-right: 0; }
+    
+    .menu { 
+        flex-wrap: wrap; 
+        justify-content: center; 
+        gap: 10px; 
+    }
+    
+    .nav-link { 
+        font-size: 0.75rem; 
+        padding: 5px 8px; 
+    }
+
+    /* 2. RÁDIO COMO BARRA INFERIOR FIXA (Estilo Spotify) */
+    .radio-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 65px; /* Altura fixa para nunca tremer */
+        background: rgba(10, 10, 10, 0.98);
+        backdrop-filter: blur(15px);
+        border: none;
+        border-top: 2px solid var(--neon-color);
+        border-radius: 0;
+        justify-content: center;
+        z-index: 9999;
+        margin: 0;
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.9);
+    }
+
+    .radio-screen {
+        width: 140px !important; /* Trava a largura da tela da rádio */
+        min-width: 140px;
+        overflow: hidden;
+    }
+
     #radio-text {
         display: block;
         width: 100%;
-        text-overflow: ellipsis; /* Se o nome da música for gigante, coloca "..." no final */
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Reticências se a música for muito grande */
     }
 
-    /* 2. DESEMPILHAR A NAVBAR (Fim do esmagamento) */
-    .left-section {
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        gap: 15px;
-    }
-
-    .radio-panel {
-        flex-wrap: wrap; /* Permite que os botões caiam para a linha de baixo se não couberem */
-        justify-content: center;
-        width: 100%;
-        padding: 10px;
-    }
-
+    /* 3. FERRAMENTAS COMO BOTÕES FLUTUANTES (Canto inferior direito) */
     .tools-group {
-        margin-left: 0;
-        padding-left: 0;
-        border-left: none;
-        width: 100%;
-        justify-content: center;
-        border-top: 1px solid #333; /* Muda a divisória para cima */
-        padding-top: 10px;
+        position: fixed;
+        bottom: 85px; /* Fica logo acima da barra da rádio */
+        right: 15px;
+        flex-direction: column; /* Empilha os botões verticalmente */
+        gap: 15px;
+        border: none;
+        padding: 0;
+        margin: 0;
+        z-index: 9998;
     }
 
-    /* 3. AJUSTES GERAIS DE LEITURA E ESPAÇAMENTO */
-    .hero {
-        padding-top: 250px; /* Empurra o perfil para baixo para a navbar gigante não cobrir */
-        padding-bottom: 50px;
+    .tool-btn, .settings-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%; /* Deixa redondinho estilo App */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+    }
+
+    .tool-btn .btn-face, .settings-btn .btn-face {
+        border-radius: 50%;
+    }
+
+    /* Ajusta a paleta de cores para abrir para a esquerda */
+    .color-picker-tooltip {
+        top: auto;
+        bottom: 0;
+        left: -190px;
+    }
+    
+    .color-picker-tooltip::before { display: none; } /* Remove a setinha para não bugar o visual */
+
+    /* 4. AJUSTE DO CORPO PARA NÃO SER COBERTO PELAS BARRAS FIXAS */
+    .hero { 
+        padding-top: 150px; 
+        padding-bottom: 100px; /* Espaço extra embaixo para a rádio não cobrir o conteúdo */
+    }
+    
+    .section { 
+        padding: 60px 5% 100px 5%; 
     }
     
     .profile-container {
-        width: 200px; /* Reduz a foto de perfil */
-        height: 200px;
-    }
-    
-    .section-title {
-        font-size: 1.5rem; /* Títulos menores para não quebrarem a palavra */
-        margin-bottom: 30px;
-    }
-    
-    .grid-container {
-        grid-template-columns: 1fr; /* Força os cards (Nexus, etc) a ficarem em coluna única */
-    }
-    
-    .card {
-        min-height: auto; /* Deixa o card crescer de acordo com o texto */
+        width: 220px;
+        height: 220px;
     }
 
-    .contact-container {
-        flex-direction: column;
-        width: 100%;
+    /* Grid única para os projetos */
+    .grid-container {
+        grid-template-columns: 1fr;
     }
     
-    .contact-container .nav-link {
-        width: 100%;
-        text-align: center;
-    }
+    .contact-container { flex-direction: column; }
+    .contact-container .nav-link { text-align: center; }
 }
