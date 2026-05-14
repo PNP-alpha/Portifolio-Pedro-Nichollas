@@ -54,13 +54,25 @@
 
   "_SECAO_RADIO": "++++++++++++++++================== RÁDIO PLAYER ======================+++++++++++++++",
   "radio_config": {
-    "url": "https://stream.zeno.fm/f3wvbbqmdg8uv",
-    "nome_display": "LOFI CODING FM",
-    "volume_inicial": 0.2
-  },
+    "volume_inicial": 0.3,
+    "estacoes": [
+        { "nome": "ROCK", "url": "https://pess01.com.br/8074/stream" },
+        { "nome": "MPB", "url": "https://painel.fabricahost.com.br/8164/stream" },
+        { "nome": "ELECTRO", "url": "https://ssl.pivox.com.br:8224/stream" },
+        { "nome": "SAMBA", "url": "https://shaincast.com.br:7039/stream" },
+        { "nome": "POP", "url": "https://painel.topstreaming.com.br/8020/stream" },
+        { "nome": "LOFI", "url": "https://lofi.stream.laut.fm/lofi" }
+    ]
+},
 
   "_SECAO_PROJETOS": "++++++++++++++++================== LISTA DE PROJETOS (CAMINHOS ATUALIZADOS) ======================+++++++++++++++",
   "projetos": [
+    {
+      "titulo": "Site_vitrine",
+      "descricao": "ste construido com o intuíto de apresentar itens ou serviçoes de alto valor e com imagem estrategicamente posicionada, não revelando preços e somente mostrando a qualidade do serviço.",
+      "link": "projetos/site_vitrine/index.html",
+      "imagem": "vitrine.jpg"
+    },
     {
       "titulo": "Nexus Enterprise ERP",
       "descricao": "Sistema de Gestão Logística Completo. Inclui Rastreamento de Frota em Tempo Real (Leaflet), Dashboard Financeiro (Chart.js), Autenticação de Usuários e Módulos WMS/TMS.",
