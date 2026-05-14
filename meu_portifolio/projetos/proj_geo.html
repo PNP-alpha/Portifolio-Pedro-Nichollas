@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoTactical v3 | PNP System</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ++++++++++++++++================== VARIÁVEIS & DESIGN SYSTEM ======================+++++++++++++++ */
+        :root { 
+            --neon: #00f3ff; 
+            --bg: #050505; 
+            --glass: rgba(10, 20, 30, 0.9); 
+            --text: #e0e0e0; 
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: 'Roboto', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: grid; 
+            grid-template-rows: 50px 1fr; 
+        }
+
+        /* ++++++++++++++++================== CABEÇALHO (HUD) ======================+++++++++++++++ */
+        header { 
+            background: #000; 
+            border-bottom: 1px solid var(--neon); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 20px; 
+        }
+        
+        h1 { 
+            font-family: 'Orbitron'; 
+            color: var(--neon); 
+            font-size: 1.2rem; 
+            letter-spacing: 2px; 
+        }
+
+        /* ++++++++++++++++================== LAYOUT PRINCIPAL ======================+++++++++++++++ */
+        .main-layout { 
+            display: grid; 
+            grid-template-columns: 320px 1fr; 
+            height: 100%; 
+        }
+        
+        .sidebar { 
+            background: var(--glass); 
+            border-right: 1px solid #333; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            z-index: 1000; 
+        }
+
+        /* ++++++++++++++++================== CONTROLES DE INTERFACE ======================+++++++++++++++ */
+        input { 
+            width: 100%; 
+            background: #111; 
+            border: 1px solid #444; 
+            color: #fff; 
+            padding: 10px; 
+            font-family: 'Orbitron'; 
+            margin-bottom: 10px; 
+        }
+        input:focus { outline: none; border-color: var(--neon); }
+        
+        .btn-action { 
+            width: 100%; 
+            background: rgba(0, 243, 255, 0.1); 
+            border: 1px solid var(--neon); 
+            color: var(--neon); 
+            padding: 10px; 
+            cursor: pointer; 
+            font-family: 'Orbitron'; 
+            transition: 0.3s; 
+            margin-bottom: 5px; 
+        }
+        .btn-action:hover { background: var(--neon); color: #000; }
+        
+        .layer-controls { display: flex; gap: 5px; margin-bottom: 15px; }
+        .btn-layer { flex: 1; background: #222; border: 1px solid #444; color: #888; padding: 5px; cursor: pointer; font-size: 0.8rem; }
+        .btn-layer.active { border-color: var(--neon); color: var(--neon); }
+
+        /* ++++++++++++++++================== TELEMETRIA ======================+++++++++++++++ */
+        .telemetry-box { border: 1px solid #333; padding: 10px; background: rgba(0,0,0,0.5); font-size: 0.8rem; }
+        .telemetry-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid #222; }
+
+        /* ++++++++++++++++================== MAPA & POPUPS ======================+++++++++++++++ */
+        #map { width: 100%; height: 100%; background: #000; }
+        
+        .leaflet-popup-content-wrapper { background: rgba(0,0,0,0.8); color: var(--neon); border: 1px solid var(--neon); border-radius: 0; }
+        .leaflet-popup-tip { background: var(--neon); }
+        .custom-div-icon i { box-shadow: 0 0 10px red; }
+
+        .btn-back { margin-top: auto; color: #666; text-decoration: none; font-family: 'Orbitron'; font-size: 0.8rem; }
+        .btn-back:hover { color: var(--neon); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fa-solid fa-earth-americas"></i> GEOTACTICAL v3.0</h1>
+        <div style="font-size: 0.7rem; color: var(--neon);">SAT_LINK: STABLE</div>
+    </header>
+
+    <div class="main-layout">
+        
+        <div class="sidebar">
+            
+            <label style="font-size:0.7rem; color:#888;">VISUAL LAYER</label>
+            <div class="layer-controls">
+                <button class="btn-layer active" onclick="setLayer('dark')">DARK</button>
+                <button class="btn-layer" onclick="setLayer('sat')">SAT</button>
+                <button class="btn-layer" onclick="setLayer('street')">STREET</button>
+            </div>
+
+            <label style="font-size:0.7rem; color:#888;">TARGET ACQUISITION</label>
+            <input type="text" id="cepInput" placeholder="CEP (Ex: 01001000)" maxlength="8">
+            <button class="btn-action" onclick="buscarAlvo()"><i class="fa-solid fa-crosshairs"></i> LOCATE TARGET</button>
+
+            <label style="font-size:0.7rem; color:#888; margin-top: 10px;">TACTICAL TOOLS</label>
+            <button class="btn-action" onclick="simularRota()"><i class="fa-solid fa-route"></i> DRAW PATH</button>
+            <button class="btn-action" onclick="scanNearby()"><i class="fa-solid fa-radar"></i> SCAN POIs</button>
+
+            <div class="telemetry-box" id="infoPanel" style="display:none;">
+                <div class="telemetry-row"><span>TARGET</span> <span id="t_city" style="color:var(--neon)">---</span></div>
+                <div class="telemetry-row"><span>LAT/LON</span> <span id="t_coords" style="color:var(--neon)">---</span></div>
+                <div class="telemetry-row"><span>TEMP</span> <span id="t_temp" style="color:var(--neon)">---</span></div>
+            </div>
+
+            <a href="../index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> ABORT MISSION</a>
+        </div>
+
+        <div id="map"></div>
+    </div>
+
+    <script>
+        // ++++++++++++++++================== CONFIGURAÇÃO INICIAL ======================+++++++++++++++
+        const map = L.map('map').setView([-23.5505, -46.6333], 13);
+        let currentMarker = null;
+        let routeLine = null;
+        
+        // ++++++++++++++++================== CAMADAS DE MAPA ======================+++++++++++++++
+        const layers = {
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: 'CartoDB' }),
+            sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' }),
+            street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: 'OSM' })
+        };
+        layers.dark.addTo(map);
+
+        // ++++++++++++++++================== FUNÇÕES DE CONTROLE ======================+++++++++++++++
+        function setLayer(type) {
+            map.eachLayer(layer => { if(layer instanceof L.TileLayer) map.removeLayer(layer); });
+            layers[type].addTo(map);
+            document.querySelectorAll('.btn-layer').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        async function buscarAlvo() {
+            const cep = document.getElementById('cepInput').value;
+            if(cep.length !== 8) return alert("CEP INVÁLIDO");
+
+            try {
+                // 1. Busca Endereço (ViaCEP API)
+                const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await res.json();
+                if(data.erro) throw new Error("CEP não encontrado");
+
+                // 2. Busca Coordenadas (Nominatim API)
+                const query = `${data.logradouro}, ${data.localidade}, ${data.uf}, Brazil`;
+                const resGeo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                const geo = await resGeo.json();
+                
+                if(!geo.length) throw new Error("Coordenadas não encontradas");
+                const { lat, lon } = geo[0];
+
+                // 3. Atualiza Interface
+                document.getElementById('infoPanel').style.display = 'block';
+                document.getElementById('t_city').innerText = data.localidade;
+                document.getElementById('t_coords').innerText = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lon).toFixed(4)}`;
+                document.getElementById('t_temp').innerText = (Math.random() * (30 - 18) + 18).toFixed(1) + "°C";
+
+                // 4. Move o Mapa
+                map.flyTo([lat, lon], 16);
+                if(currentMarker) map.removeLayer(currentMarker);
+                currentMarker = L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`<b>ALVO: ${data.logradouro}</b>`).openPopup();
+
+            } catch(e) { alert(e.message); }
+        }
+
+        // ++++++++++++++++================== FERRAMENTAS TÁTICAS ======================+++++++++++++++
+        function simularRota() {
+            if(!currentMarker) return alert("LOCALIZE UM ALVO PRIMEIRO");
+            const start = map.getCenter();
+            // Simula um ponto de destino próximo
+            const end = [start.lat + 0.01, start.lng + 0.01];
+            
+            if(routeLine) map.removeLayer(routeLine);
+            routeLine = L.polyline([start, end], {color: 'var(--neon)', weight: 3, dashArray: '5, 10'}).addTo(map);
+            map.fitBounds(routeLine.getBounds());
+            
+            L.marker(end).addTo(map).bindPopup("PONTO DE EXTRAÇÃO");
+        }
+
+        function scanNearby() {
+            if(!currentMarker) return alert("LOCALIZE UM ALVO PRIMEIRO");
+            const center = map.getCenter();
+            
+            // Simula Pontos de Interesse (POIs)
+            const pois = [
+                { name: "HOSPITAL CENTRAL", icon: "fa-hospital", lat: center.lat + 0.002, lng: center.lng - 0.002 },
+                { name: "DELEGACIA 01", icon: "fa-shield", lat: center.lat - 0.003, lng: center.lng + 0.001 },
+                { name: "BANCO NACIONAL", icon: "fa-money-bill", lat: center.lat + 0.001, lng: center.lng + 0.003 }
+            ];
+
+            pois.forEach(p => {
+                const icon = L.divIcon({
+                    html: `<i class="fa-solid ${p.icon}" style="color:white; background:red; padding:5px; border-radius:50%;"></i>`,
+                    className: 'custom-div-icon'
+                });
+                L.marker([p.lat, p.lng], {icon: icon}).addTo(map).bindPopup(p.name);
+            });
+            alert(`${pois.length} PONTOS DE INTERESSE DETECTADOS.`);
+        }
+    </script>
+</body>
+</html>

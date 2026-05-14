@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Cidadão | Prefeitura de São Paulo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1d4ed8', // Azul Institucional Forte
+                        secondary: '#f1f5f9',
+                        accent: '#0ea5e9',
+                        success: '#22c55e',
+                        warning: '#eab308',
+                        danger: '#ef4444',
+                        dark: '#0f172a'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Animações e Utilitários */
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 25s linear infinite; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Loader */
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #1d4ed8; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Scrollbar Personalizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased overflow-x-hidden">
+
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2"></div>
+
+    <div id="modal-container" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        </div>
+
+    <header class="fixed w-full top-0 z-40 bg-white/95 backdrop-blur shadow-sm border-b border-slate-200 transition-all duration-300" id="main-header">
+        <div class="bg-slate-900 text-slate-300 text-[10px] md:text-xs py-1 px-4 flex justify-between items-center">
+            <span>PREFEITURA MUNICIPAL DIGITAL - SP</span>
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-white">Acessibilidade</a>
+                <a href="#" class="hover:text-white">Alto Contraste</a>
+                <a href="#" class="hover:text-white">Mapa do Site</a>
+                <a href="../index.html" class="text-accent font-bold hover:underline">VOLTAR AO PORTFÓLIO</a>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" onclick="Router.navigate('home')" class="flex items-center gap-3 group">
+                <div class="bg-primary text-white p-2.5 rounded-lg shadow-lg group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-landmark text-2xl"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-orbitron font-bold text-xl text-primary leading-none tracking-tight">PORTAL<span class="text-slate-700">CIDADÃO</span></span>
+                    <span class="text-[10px] text-slate-500 font-bold tracking-[0.2em] mt-1">GOVERNO DIGITAL</span>
+                </div>
+            </a>
+
+            <nav class="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-full">
+                <button onclick="Router.navigate('home')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-primary transition hover:bg-white hover:shadow-sm">INÍCIO</button>
+                <button onclick="Router.navigate('services')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-primary transition hover:bg-white hover:shadow-sm">SERVIÇOS</button>
+                <button onclick="Router.navigate('news')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-primary transition hover:bg-white hover:shadow-sm">NOTÍCIAS</button>
+                <button onclick="Router.navigate('transparency')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-primary transition hover:bg-white hover:shadow-sm">TRANSPARÊNCIA</button>
+                <button onclick="Router.navigate('contact')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-primary transition hover:bg-white hover:shadow-sm">CONTATO</button>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <div class="relative hidden md:block">
+                    <input type="text" placeholder="O que você procura?" class="bg-slate-100 border border-transparent rounded-full py-2 px-4 pl-10 text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 w-56 transition-all outline-none">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400"></i>
+                </div>
+                <button class="lg:hidden text-2xl text-slate-700 p-2" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <div id="mobile-menu" class="fixed inset-0 bg-slate-900/95 z-50 hidden flex-col justify-center items-center gap-6 text-white text-xl font-bold backdrop-blur-md">
+        <button class="absolute top-6 right-6 text-3xl" onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+        <a href="#" onclick="toggleMobileMenu(); Router.navigate('home')">Início</a>
+        <a href="#" onclick="toggleMobileMenu(); Router.navigate('services')">Serviços</a>
+        <a href="#" onclick="toggleMobileMenu(); Router.navigate('news')">Notícias</a>
+        <a href="#" onclick="toggleMobileMenu(); Router.navigate('contact')">Contato</a>
+    </div>
+
+    <main id="app-root" class="pt-28 min-h-screen pb-12">
+        </main>
+
+    <footer class="bg-slate-900 text-slate-400 pt-16 pb-8 border-t border-slate-800">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div>
+                <div class="flex items-center gap-2 mb-6">
+                    <i class="fa-solid fa-landmark text-white text-xl"></i>
+                    <span class="font-orbitron font-bold text-white text-lg">PREFEITURA DIGITAL</span>
+                </div>
+                <p class="text-sm leading-relaxed mb-6">Trabalhando para construir uma cidade mais inteligente, humana e sustentável. Acesse nossos serviços de onde estiver.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="text-white font-bold mb-6 font-orbitron">SERVIÇOS RÁPIDOS</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" onclick="Router.navigate('iptu')" class="hover:text-primary transition flex items-center gap-2"><i class="fa-solid fa-chevron-right text-xs"></i> 2ª Via IPTU</a></li>
+                    <li><a href="#" onclick="Router.navigate('news')" class="hover:text-primary transition flex items-center gap-2"><i class="fa-solid fa-chevron-right text-xs"></i> Diário Oficial</a></li>
+                    <li><a href="#" onclick="Router.navigate('health')" class="hover:text-primary transition flex items-center gap-2"><i class="fa-solid fa-chevron-right text-xs"></i> Agendamento Saúde</a></li>
+                    <li><a href="#" onclick="Router.navigate('licenses')" class="hover:text-primary transition flex items-center gap-2"><i class="fa-solid fa-chevron-right text-xs"></i> Alvarás e Licenças</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-6 font-orbitron">CONTATO</h4>
+                <ul class="space-y-4 text-sm">
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-location-dot mt-1 text-primary"></i>
+                        <span>Paço Municipal, 123<br>Centro - São Paulo/SP<br>CEP: 13940-000</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fa-solid fa-phone text-primary"></i>
+                        <span>(35) 3465-0000</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fa-solid fa-envelope text-primary"></i>
+                        <span>atendimento@saopaulo.sp.gov.br</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-6 font-orbitron">HORÁRIO</h4>
+                <div class="bg-white/5 p-4 rounded-lg border border-white/10">
+                    <p class="text-xs text-slate-500 uppercase font-bold mb-1">Atendimento Presencial</p>
+                    <p class="text-white font-bold">Segunda a Sexta</p>
+                    <p class="mb-3">08:00 às 17:00</p>
+                    <div class="h-px bg-white/10 my-3"></div>
+                    <p class="text-xs text-slate-500 uppercase font-bold mb-1">Guarda Municipal</p>
+                    <p class="text-white font-bold flex items-center gap-2"><i class="fa-solid fa-phone-volume text-red-500 animate-pulse"></i> Plantão 24h: 153</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container mx-auto px-4 border-t border-slate-800 pt-8 text-center text-xs text-slate-600 flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2026 Prefeitura de São Paulo. Todos os direitos reservados.</p>
+            <p>Desenvolvido com <i class="fa-solid fa-heart text-red-500"></i> por <span class="text-white font-bold">PNP Systems</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. DADOS MOCKADOS (DATABASE) ---
+        const DB = {
+            news: [
+                { id: 1, cat: 'SAÚDE', title: 'Campanha de vacinação contra a gripe começa nesta segunda', date: 'Hoje, 08:30', img: 'https://images.unsplash.com/photo-1632053002928-1936bb483dc2?auto=format&fit=crop&w=600&q=80', featured: true },
+                { id: 2, cat: 'EDUCAÇÃO', title: 'Prefeitura entrega 500 tablets para rede municipal', date: 'Ontem', img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=400&q=60', featured: false },
+                { id: 3, cat: 'OBRAS', title: 'Recapeamento da Av. das Fontes é finalizado', date: '10/02', img: 'https://images.unsplash.com/photo-1590674899505-1c5c41951f89?auto=format&fit=crop&w=400&q=60', featured: false },
+                { id: 4, cat: 'CULTURA', title: 'Festival de Inverno abre inscrições para artistas', date: '09/02', img: 'https://images.unsplash.com/photo-1533174072545-e8d4aa97edf9?auto=format&fit=crop&w=400&q=60', featured: false },
+                { id: 5, cat: 'ECONOMIA', title: 'IPTU 2026 tem desconto de 10% na cota única', date: '08/02', img: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=60', featured: false }
+            ],
+            services: [
+                { id: 'iptu', icon: 'fa-file-invoice-dollar', title: 'IPTU e Taxas', desc: '2ª via, certidões e pagamentos.', color: 'text-blue-600', bg: 'bg-blue-50' },
+                { id: 'health', icon: 'fa-user-doctor', title: 'Saúde', desc: 'Agendamentos e carteira de vacinação.', color: 'text-red-600', bg: 'bg-red-50' },
+                { id: 'education', icon: 'fa-graduation-cap', title: 'Educação', desc: 'Matrículas e boletim escolar.', color: 'text-yellow-600', bg: 'bg-yellow-50' },
+                { id: 'documents', icon: 'fa-id-card', title: 'Documentos', desc: 'RG, CPF e Carteira de Trabalho.', color: 'text-green-600', bg: 'bg-green-50' },
+                { id: 'licenses', icon: 'fa-file-signature', title: 'Alvarás', desc: 'Licenças para construção e comércio.', color: 'text-purple-600', bg: 'bg-purple-50' },
+                { id: 'traffic', icon: 'fa-car', title: 'Trânsito', desc: 'Multas, recursos e cartão idoso.', color: 'text-slate-600', bg: 'bg-slate-100' },
+                { id: 'ombudsman', icon: 'fa-bullhorn', title: 'Ouvidoria', desc: 'Denúncias, elogios e reclamações.', color: 'text-orange-600', bg: 'bg-orange-50' },
+                { id: 'social', icon: 'fa-hands-holding-child', title: 'Social', desc: 'CadÚnico e auxílios.', color: 'text-pink-600', bg: 'bg-pink-50' }
+            ]
+        };
+
+        // --- 2. SISTEMA DE ROTAS E VIEWS ---
+        const Router = {
+            current: 'home',
+            
+            navigate: (viewId) => {
+                Router.current = viewId;
+                window.scrollTo(0, 0);
+                const app = document.getElementById('app-root');
+                app.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>'; // Loading rápido
+                
+                setTimeout(() => {
+                    switch(viewId) {
+                        case 'home': app.innerHTML = Views.home(); break;
+                        case 'news': app.innerHTML = Views.news(); break;
+                        case 'services': app.innerHTML = Views.services(); break;
+                        case 'contact': app.innerHTML = Views.contact(); break;
+                        case 'transparency': app.innerHTML = Views.transparency(); break;
+                        // Sub-páginas de Serviços
+                        case 'iptu': app.innerHTML = Views.serviceIPTU(); break;
+                        case 'health': app.innerHTML = Views.serviceHealth(); break;
+                        case 'education': app.innerHTML = Views.serviceEducation(); break;
+                        case 'documents': app.innerHTML = Views.serviceDocuments(); break;
+                        case 'licenses': app.innerHTML = Views.serviceLicenses(); break;
+                        case 'traffic': app.innerHTML = Views.serviceTraffic(); break;
+                        case 'ombudsman': app.innerHTML = Views.serviceOmbudsman(); break;
+                        case 'social': app.innerHTML = Views.serviceSocial(); break;
+                        default: app.innerHTML = Views.home();
+                    }
+                    // Reinicializa scripts da view (ex: charts)
+                    if(viewId === 'transparency') initCharts();
+                }, 200);
+            }
+        };
+
+        // --- 3. VIEWS (TEMPLATES HTML) ---
+        const Views = {
+            home: () => `
+                <div class="bg-red-600 text-white text-xs md:text-sm py-2 relative overflow-hidden shadow-md">
+                    <div class="container mx-auto px-4 flex items-center">
+                        <span class="font-bold flex items-center gap-2 z-10 bg-red-600 pr-4 shadow-[5px_0_10px_rgba(220,38,38,1)] whitespace-nowrap">
+                            <span class="animate-pulse w-2 h-2 bg-white rounded-full block"></span> URGENTE
+                        </span>
+                        <div class="flex-1 overflow-hidden relative h-5">
+                            <p class="animate-marquee absolute whitespace-nowrap">
+                                ⚠️ Avenida Central interditada para obras • 💉 Dia D de vacinação neste sábado • 📄 Prazo do Refis termina dia 30.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="relative bg-slate-900 text-white py-20 overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-20"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
+                    <div class="container mx-auto px-4 relative z-10">
+                        <h1 class="font-orbitron text-4xl md:text-5xl font-bold mb-4">PREFEITURA DIGITAL</h1>
+                        <p class="text-lg md:text-xl text-slate-300 max-w-2xl mb-8">Acesso rápido, fácil e transparente aos serviços da sua cidade. O futuro da gestão pública começa aqui.</p>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            ${DB.services.slice(0, 6).map(s => `
+                                <button onclick="Router.navigate('${s.id}')" class="bg-white/10 backdrop-blur border border-white/20 p-4 rounded-xl hover:bg-white hover:text-primary transition group text-center">
+                                    <i class="fa-solid ${s.icon} text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                                    <span class="block text-xs font-bold uppercase tracking-wider">${s.title}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-12 bg-white">
+                    <div class="container mx-auto px-4">
+                        <div class="flex items-center gap-2 mb-8 border-l-4 border-primary pl-4">
+                            <h2 class="font-orbitron text-2xl font-bold text-slate-800">PRINCIPAIS NOTÍCIAS</h2>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div onclick="Router.navigate('news')" class="lg:col-span-2 group cursor-pointer relative rounded-2xl overflow-hidden shadow-lg h-[400px]">
+                                <img src="${DB.news[0].img}" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8">
+                                    <span class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full w-fit mb-3">${DB.news[0].cat}</span>
+                                    <h3 class="text-white font-bold text-2xl md:text-3xl leading-tight group-hover:text-blue-200 transition">${DB.news[0].title}</h3>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-4">
+                                ${DB.news.slice(1, 4).map(n => `
+                                    <div class="flex gap-4 p-3 rounded-xl hover:bg-slate-50 transition cursor-pointer group border border-transparent hover:border-slate-100">
+                                        <div class="w-24 h-24 rounded-lg overflow-hidden shrink-0">
+                                            <img src="${n.img}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                        </div>
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-bold text-primary uppercase mb-1">${n.cat}</span>
+                                            <h4 class="font-bold text-slate-800 leading-snug text-sm group-hover:text-primary transition">${n.title}</h4>
+                                            <span class="text-[10px] text-slate-400 mt-2"><i class="fa-regular fa-clock"></i> ${n.date}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-16 bg-slate-100">
+                    <div class="container mx-auto px-4">
+                        <div class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+                            <div class="bg-slate-900 p-10 md:w-1/3 text-white flex flex-col justify-center">
+                                <h2 class="font-orbitron text-3xl font-bold mb-4 text-primary">TRANSPARÊNCIA</h2>
+                                <p class="text-slate-400 mb-8">Acompanhe em tempo real onde o dinheiro público está sendo investido.</p>
+                                <button onclick="Router.navigate('transparency')" class="bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition w-fit">ACESSAR PORTAL</button>
+                            </div>
+                            <div class="p-8 md:w-2/3 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <div class="text-center p-4 border rounded-xl bg-slate-50">
+                                    <div class="text-3xl font-bold text-slate-800 mb-1">R$ 124Mi</div>
+                                    <div class="text-xs text-slate-500 uppercase font-bold">Orçamento 2026</div>
+                                </div>
+                                <div class="text-center p-4 border rounded-xl bg-slate-50">
+                                    <div class="text-3xl font-bold text-green-600 mb-1">158</div>
+                                    <div class="text-xs text-slate-500 uppercase font-bold">Obras Ativas</div>
+                                </div>
+                                <div class="text-center p-4 border rounded-xl bg-slate-50">
+                                    <div class="text-3xl font-bold text-blue-600 mb-1">98%</div>
+                                    <div class="text-xs text-slate-500 uppercase font-bold">Educação Básica</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `,
+
+            services: () => `
+                <div class="container mx-auto px-4 py-8 fade-in">
+                    <div class="text-center max-w-2xl mx-auto mb-12">
+                        <h2 class="font-orbitron text-3xl font-bold text-slate-800 mb-4">CARTA DE SERVIÇOS</h2>
+                        <p class="text-slate-500">Encontre todos os serviços digitais disponíveis para o cidadão e empresas.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        ${DB.services.map(s => `
+                            <div onclick="Router.navigate('${s.id}')" class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer group">
+                                <div class="w-12 h-12 rounded-lg ${s.bg} ${s.color} flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                                    <i class="fa-solid ${s.icon}"></i>
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-800 mb-2">${s.title}</h3>
+                                <p class="text-sm text-slate-500">${s.desc}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `,
+
+            // --- PÁGINAS ESPECÍFICAS DE SERVIÇOS ---
+            
+            serviceIPTU: () => `
+                <div class="container mx-auto px-4 py-8 max-w-2xl fade-in">
+                    <button onclick="Router.navigate('services')" class="text-sm text-slate-500 hover:text-primary mb-6"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                        <div class="bg-blue-600 p-6 text-white">
+                            <h2 class="font-orbitron text-2xl font-bold"><i class="fa-solid fa-file-invoice-dollar mr-2"></i> CONSULTA IPTU 2026</h2>
+                            <p class="text-blue-100 text-sm mt-1">Emita a 2ª via do seu boleto ou consulte débitos.</p>
+                        </div>
+                        <div class="p-8">
+                            <form onsubmit="UI.handleServiceSubmit(event, 'iptuResult')">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Número da Inscrição Imobiliária</label>
+                                <input type="text" placeholder="Ex: 12.345.678-9" class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none mb-4" required>
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">CPF/CNPJ do Proprietário</label>
+                                        <input type="text" class="w-full border border-slate-300 rounded-lg p-3 outline-none" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Ano de Exercício</label>
+                                        <select class="w-full border border-slate-300 rounded-lg p-3 outline-none">
+                                            <option>2026</option>
+                                            <option>2025</option>
+                                            <option>Todos (Débitos)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg shadow-blue-600/20">
+                                    CONSULTAR DÉBITOS
+                                </button>
+                            </form>
+                            <div id="iptuResult" class="hidden mt-8 pt-8 border-t border-slate-100">
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex justify-between items-center">
+                                    <div>
+                                        <p class="font-bold text-green-800">Cota Única 2026</p>
+                                        <p class="text-xs text-green-600">Vencimento: 10/03/2026</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-bold text-lg text-slate-800">R$ 450,00</p>
+                                        <button onclick="UI.showToast('PDF Gerado com sucesso!', 'success')" class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mt-1"><i class="fa-solid fa-download"></i> BAIXAR</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+
+            serviceTraffic: () => `
+                <div class="container mx-auto px-4 py-8 max-w-2xl fade-in">
+                    <button onclick="Router.navigate('services')" class="text-sm text-slate-500 hover:text-primary mb-6"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                        <div class="bg-slate-800 p-6 text-white">
+                            <h2 class="font-orbitron text-2xl font-bold"><i class="fa-solid fa-car mr-2"></i> INFRAÇÕES DE TRÂNSITO</h2>
+                            <p class="text-slate-400 text-sm mt-1">Consulte multas e recursos.</p>
+                        </div>
+                        <div class="p-8">
+                            <form onsubmit="UI.handleServiceSubmit(event, 'trafficResult')">
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Placa do Veículo</label>
+                                        <input type="text" placeholder="ABC-1234" class="w-full border border-slate-300 rounded-lg p-3 uppercase font-mono outline-none" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">RENAVAM</label>
+                                        <input type="text" class="w-full border border-slate-300 rounded-lg p-3 font-mono outline-none" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg transition">PESQUISAR</button>
+                            </form>
+                            <div id="trafficResult" class="hidden mt-8 text-center p-8 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                                <i class="fa-solid fa-check-circle text-4xl text-green-500 mb-2"></i>
+                                <p class="font-bold text-slate-800">Nada Consta!</p>
+                                <p class="text-sm text-slate-500">Nenhuma infração registrada para este veículo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+
+            serviceOmbudsman: () => `
+                <div class="container mx-auto px-4 py-8 max-w-3xl fade-in">
+                    <button onclick="Router.navigate('services')" class="text-sm text-slate-500 hover:text-primary mb-6"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200">
+                        <div class="bg-orange-600 p-6 text-white rounded-t-2xl">
+                            <h2 class="font-orbitron text-2xl font-bold"><i class="fa-solid fa-bullhorn mr-2"></i> E-OUVIDORIA</h2>
+                            <p class="text-orange-100 text-sm">Registre sua manifestação. Sua identidade será preservada.</p>
+                        </div>
+                        <form onsubmit="UI.handleServiceSubmit(event)" class="p-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Tipo de Manifestação</label>
+                                    <select class="w-full border border-slate-300 rounded-lg p-3 outline-none bg-slate-50">
+                                        <option>Denúncia</option>
+                                        <option>Reclamação</option>
+                                        <option>Solicitação</option>
+                                        <option>Elogio</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Assunto</label>
+                                    <select class="w-full border border-slate-300 rounded-lg p-3 outline-none bg-slate-50">
+                                        <option>Iluminação Pública</option>
+                                        <option>Limpeza Urbana</option>
+                                        <option>Saúde</option>
+                                        <option>Educação</option>
+                                        <option>Outros</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Descrição Detalhada</label>
+                                <textarea rows="5" class="w-full border border-slate-300 rounded-lg p-3 outline-none bg-slate-50" placeholder="Descreva o ocorrido com o máximo de detalhes..." required></textarea>
+                            </div>
+                            <div class="mb-8">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Anexar Fotos/Documentos (Opcional)</label>
+                                <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:bg-slate-50 transition">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                                    <p class="text-sm text-slate-500">Clique para fazer upload</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="checkbox" id="anon" class="w-4 h-4">
+                                <label for="anon" class="text-sm text-slate-600">Desejo realizar manifestação anônima</label>
+                            </div>
+                            <button type="submit" class="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg transition">REGISTRAR MANIFESTAÇÃO</button>
+                        </form>
+                    </div>
+                </div>
+            `,
+
+            serviceLicenses: () => `
+                <div class="container mx-auto px-4 py-8 max-w-4xl fade-in">
+                    <button onclick="Router.navigate('services')" class="text-sm text-slate-500 hover:text-primary mb-6"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <h2 class="font-orbitron text-2xl font-bold text-slate-800 mb-6">LICENCIAMENTO DIGITAL</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                            <h3 class="font-bold text-lg text-purple-700 mb-4"><i class="fa-solid fa-plus-circle"></i> Nova Solicitação</h3>
+                            <ul class="space-y-3 mb-6">
+                                <li><button class="w-full text-left p-3 rounded bg-slate-50 hover:bg-purple-50 hover:text-purple-700 transition font-medium border border-transparent hover:border-purple-200" onclick="UI.showModal('alvara_obra')">Alvará de Construção</button></li>
+                                <li><button class="w-full text-left p-3 rounded bg-slate-50 hover:bg-purple-50 hover:text-purple-700 transition font-medium border border-transparent hover:border-purple-200" onclick="UI.showModal('alvara_func')">Licença de Funcionamento</button></li>
+                                <li><button class="w-full text-left p-3 rounded bg-slate-50 hover:bg-purple-50 hover:text-purple-700 transition font-medium border border-transparent hover:border-purple-200" onclick="UI.showModal('habitese')">Habite-se</button></li>
+                            </ul>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-xl border border-purple-100">
+                            <h3 class="font-bold text-lg text-purple-700 mb-4"><i class="fa-solid fa-search"></i> Acompanhar Processo</h3>
+                            <form onsubmit="UI.handleServiceSubmit(event)">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Número do Protocolo</label>
+                                <div class="flex gap-2">
+                                    <input type="text" placeholder="Ex: 2026/00458" class="flex-1 border border-purple-200 rounded-lg p-3 outline-none" required>
+                                    <button class="bg-purple-600 text-white px-6 rounded-lg font-bold hover:bg-purple-700 transition"><i class="fa-solid fa-arrow-right"></i></button>
+                                </div>
+                            </form>
+                            <div class="mt-8 bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                                <p class="text-xs text-slate-500 uppercase font-bold mb-2">Últimos Processos Públicos</p>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between border-b pb-2"><span class="text-slate-700">Construção #445</span> <span class="text-green-600 font-bold">APROVADO</span></div>
+                                    <div class="flex justify-between border-b pb-2"><span class="text-slate-700">Reforma #442</span> <span class="text-orange-500 font-bold">EM ANÁLISE</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+
+            serviceHealth: () => `
+                <div class="container mx-auto px-4 py-8 fade-in">
+                    <button onclick="Router.navigate('services')" class="text-sm text-slate-500 hover:text-primary mb-6"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="font-orbitron text-2xl font-bold text-slate-800">SAÚDE DIGITAL</h2>
+                        <button onclick="UI.showToast('Carteira de Vacinação baixada!', 'success')" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700"><i class="fa-solid fa-print"></i> Minha Carteira</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="col-span-2 space-y-4">
+                            <h3 class="font-bold text-slate-700">Unidades de Saúde (UBS)</h3>
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-red-300 transition flex gap-4">
+                                <div class="w-16 h-16 bg-red-50 rounded-lg flex items-center justify-center text-red-600 text-2xl"><i class="fa-solid fa-hospital"></i></div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-lg">UBS Centro</h4>
+                                    <p class="text-sm text-slate-500"><i class="fa-solid fa-location-dot"></i> Rua Direita, 400</p>
+                                    <p class="text-sm text-slate-500"><i class="fa-solid fa-clock"></i> 07:00 - 17:00</p>
+                                </div>
+                                <button onclick="UI.showModal('agendamento')" class="self-center bg-white border border-red-600 text-red-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-50">AGENDAR</button>
+                            </div>
+                             <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-red-300 transition flex gap-4">
+                                <div class="w-16 h-16 bg-red-50 rounded-lg flex items-center justify-center text-red-600 text-2xl"><i class="fa-solid fa-hospital"></i></div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-lg">UBS Jardim Europa</h4>
+                                    <p class="text-sm text-slate-500"><i class="fa-solid fa-location-dot"></i> Av. das Flores, 120</p>
+                                    <p class="text-sm text-slate-500"><i class="fa-solid fa-clock"></i> 07:00 - 16:00</p>
+                                </div>
+                                <button onclick="UI.showModal('agendamento')" class="self-center bg-white border border-red-600 text-red-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-50">AGENDAR</button>
+                            </div>
+                        </div>
+                        <div class="bg-red-50 rounded-xl p-6 border border-red-100 h-fit">
+                            <h3 class="font-bold text-red-800 mb-4"><i class="fa-solid fa-pills"></i> Farmácia Popular</h3>
+                            <div class="bg-white p-3 rounded-lg text-sm text-slate-600 shadow-sm mb-2 flex justify-between">
+                                <span>Dipirona 500mg</span> <span class="text-green-600 font-bold text-xs">DISPONÍVEL</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg text-sm text-slate-600 shadow-sm mb-2 flex justify-between">
+                                <span>Losartana 50mg</span> <span class="text-green-600 font-bold text-xs">DISPONÍVEL</span>
+                            </div>
+                             <div class="bg-white p-3 rounded-lg text-sm text-slate-600 shadow-sm mb-2 flex justify-between">
+                                <span>Insulina NPH</span> <span class="text-red-500 font-bold text-xs">EM FALTA</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-4 text-center">Atualizado hoje às 08:00</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+
+            // Views simplificadas para Documents, Social, Education
+            serviceDocuments: () => Views.simpleServiceTemplate('DOCUMENTOS', 'fa-id-card', 'green', 'Agendamento de RG e CPF', ['1ª Via RG', '2ª Via RG', 'Antecedentes Criminais', 'Carteira de Trabalho Digital']),
+            serviceSocial: () => Views.simpleServiceTemplate('ASSISTÊNCIA SOCIAL', 'fa-hands-holding-child', 'pink', 'Programas e Auxílios', ['Consulta CadÚnico', 'Auxílio Brasil', 'CRAS - Agendamento', 'Bolsa Família']),
+            serviceEducation: () => Views.simpleServiceTemplate('EDUCAÇÃO', 'fa-graduation-cap', 'yellow', 'Portal do Aluno e Matrículas', ['Boletim Online', 'Renovação de Matrícula', 'Lista de Espera Creche', 'Cardápio Merenda']),
+
+            simpleServiceTemplate: (title, icon, color, subtitle, items) => `
+                <div class="container mx-auto px-4 py-8 max-w-2xl fade-in">
+                    <button onclick="Router.navigate('services')" class="text-sm text-slate-500 hover:text-primary mb-6"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-16 h-16 rounded-full bg-${color}-100 flex items-center justify-center text-${color}-600 text-3xl">
+                                <i class="fa-solid ${icon}"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-orbitron text-2xl font-bold text-slate-800">${title}</h2>
+                                <p class="text-slate-500">${subtitle}</p>
+                            </div>
+                        </div>
+                        <div class="grid gap-4">
+                            ${items.map(item => `
+                                <button onclick="UI.showModal('generic_form', '${item}')" class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-${color}-500 hover:bg-${color}-50 transition group">
+                                    <span class="font-bold text-slate-700">${item}</span>
+                                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-${color}-600"></i>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `,
+
+            transparency: () => `
+                 <div class="container mx-auto px-4 py-8 fade-in">
+                    <h2 class="font-orbitron text-3xl font-bold text-slate-800 mb-8 border-b pb-4">PORTAL DA TRANSPARÊNCIA</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow border border-slate-200">
+                            <h3 class="font-bold mb-4">Receitas vs Despesas (2025)</h3>
+                            <canvas id="chartFinance"></canvas>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow border border-slate-200">
+                            <h3 class="font-bold mb-4">Investimento por Setor</h3>
+                            <canvas id="chartSectors"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `,
+
+            news: () => `
+                <div class="container mx-auto px-4 py-8 fade-in">
+                    <h2 class="font-orbitron text-3xl font-bold text-slate-800 mb-8">AGÊNCIA DE NOTÍCIAS</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        ${DB.news.map(n => `
+                            <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer group border border-slate-200">
+                                <div class="h-48 overflow-hidden relative">
+                                    <img src="${n.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                    <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded">${n.cat}</span>
+                                </div>
+                                <div class="p-5">
+                                    <h3 class="font-bold text-slate-800 leading-tight mb-2 group-hover:text-primary transition">${n.title}</h3>
+                                    <span class="text-xs text-slate-400"><i class="fa-regular fa-clock"></i> ${n.date}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `,
+
+            contact: () => `
+                <div class="container mx-auto px-4 py-8 fade-in">
+                     <h2 class="font-orbitron text-3xl font-bold text-slate-800 mb-8 text-center">FALE CONOSCO</h2>
+                     <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+                        <div class="bg-slate-900 p-10 md:w-1/3 text-white">
+                            <h3 class="font-bold text-xl mb-6">Informações</h3>
+                            <div class="space-y-6 text-sm opacity-90">
+                                <p><i class="fa-solid fa-location-dot mr-3 text-primary"></i> Paço Municipal, 123</p>
+                                <p><i class="fa-solid fa-phone mr-3 text-primary"></i> (35) 3465-0000</p>
+                                <p><i class="fa-solid fa-envelope mr-3 text-primary"></i> contato@montesiao.mg.gov.br</p>
+                            </div>
+                        </div>
+                        <div class="p-10 md:w-2/3">
+                            <form onsubmit="UI.handleServiceSubmit(event)">
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <input type="text" placeholder="Nome" class="border p-3 rounded-lg w-full bg-slate-50" required>
+                                    <input type="email" placeholder="Email" class="border p-3 rounded-lg w-full bg-slate-50" required>
+                                </div>
+                                <textarea rows="4" placeholder="Mensagem" class="border p-3 rounded-lg w-full bg-slate-50 mb-4" required></textarea>
+                                <button class="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">ENVIAR</button>
+                            </form>
+                        </div>
+                     </div>
+                </div>
+            `
+        };
+
+        // --- 4. UI CONTROLLERS ---
+        const UI = {
+            showToast: (msg, type = 'success') => {
+                const container = document.getElementById('toast-container');
+                const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+                const icon = { success: 'fa-check', error: 'fa-xmark', info: 'fa-info' };
+                
+                const toast = document.createElement('div');
+                toast.className = `${colors[type]} text-white p-4 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] animate-bounce-in`;
+                toast.innerHTML = `<i class="fa-solid ${icon[type]}"></i> <span class="font-bold text-sm">${msg}</span>`;
+                
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            },
+
+            showModal: (type, title = '') => {
+                const container = document.getElementById('modal-container');
+                container.classList.remove('hidden');
+                
+                let content = '';
+                if(type === 'agendamento') {
+                    content = `
+                        <h3 class="text-xl font-bold mb-4">Agendar Consulta</h3>
+                        <input type="date" class="w-full border p-2 rounded mb-4">
+                        <select class="w-full border p-2 rounded mb-6"><option>Clínico Geral</option><option>Pediatra</option><option>Dentista</option></select>
+                    `;
+                } else if(type === 'alvara_obra') {
+                    content = `
+                        <h3 class="text-xl font-bold mb-4">Novo Alvará de Obra</h3>
+                        <input type="text" placeholder="Endereço da Obra" class="w-full border p-2 rounded mb-4">
+                        <input type="text" placeholder="Responsável Técnico (CREA)" class="w-full border p-2 rounded mb-6">
+                    `;
+                } else {
+                    content = `
+                        <h3 class="text-xl font-bold mb-4">${title}</h3>
+                        <p class="text-slate-500 mb-4">Preencha seus dados para iniciar a solicitação.</p>
+                        <input type="text" placeholder="CPF/CNPJ" class="w-full border p-2 rounded mb-6">
+                    `;
+                }
+
+                container.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full relative">
+                        <button onclick="document.getElementById('modal-container').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        ${content}
+                        <button onclick="UI.handleServiceSubmit(event); document.getElementById('modal-container').classList.add('hidden')" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-700">CONFIRMAR</button>
+                    </div>
+                `;
+            },
+
+            handleServiceSubmit: (e, resultId = null) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalText = btn.innerText;
+                
+                // Loading State
+                btn.innerHTML = '<div class="loader border-white border-t-transparent mx-auto"></div>';
+                btn.disabled = true;
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    
+                    if(resultId) {
+                        document.getElementById(resultId).classList.remove('hidden');
+                    } else {
+                        UI.showToast('Solicitação enviada com sucesso!', 'success');
+                        e.target.reset();
+                    }
+                }, 1500);
+            }
+        };
+
+        // --- 5. CHARTS (TRANSPARENCIA) ---
+        function initCharts() {
+            const ctx1 = document.getElementById('chartFinance');
+            const ctx2 = document.getElementById('chartSectors');
+            
+            if(ctx1 && ctx2) {
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+                        datasets: [
+                            { label: 'Receitas', data: [12, 19, 15, 17, 22], backgroundColor: '#22c55e' },
+                            { label: 'Despesas', data: [10, 15, 13, 16, 18], backgroundColor: '#ef4444' }
+                        ]
+                    }
+                });
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Saúde', 'Educação', 'Obras', 'Admin'],
+                        datasets: [{ data: [35, 30, 20, 15], backgroundColor: ['#ef4444', '#eab308', '#22c55e', '#3b82f6'] }]
+                    }
+                });
+            }
+        }
+
+        // Mobile Menu Logic
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        }
+
+        // Init
+        window.addEventListener('load', () => Router.navigate('home'));
+
+    </script>
+</body>
+</html>

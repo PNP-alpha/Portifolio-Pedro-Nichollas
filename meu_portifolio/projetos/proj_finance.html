@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle Cloud Cost Manager v3.0 | PNP System</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ++++++++++++++++================== VARIÁVEIS & DESIGN SYSTEM ======================+++++++++++++++ */
+        :root {
+            --theme-color: #00ff88; /* Verde Finanças */
+            --alert-color: #ff4444;
+            --bg: #050505;
+            --panel: #111;
+            --border: #222;
+            --text-main: #e0e0e0;
+            --text-muted: #888;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% 0%, #1a2e24 0%, #000 70%);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+
+        /* ++++++++++++++++================== TELA DE CARREGAMENTO ======================+++++++++++++++ */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid var(--theme-color); border-top-color: transparent;
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* ++++++++++++++++================== BARRA DE NAVEGAÇÃO ======================+++++++++++++++ */
+        nav {
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--theme-color);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .brand { font-family: 'Orbitron'; color: var(--theme-color); font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .nav-controls { display: flex; gap: 15px; }
+        
+        select, button.btn-control {
+            background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 8px 15px;
+            border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: 0.2s;
+        }
+        select:hover, button.btn-control:hover { border-color: var(--theme-color); }
+        .btn-active { background: var(--theme-color) !important; color: #000 !important; font-weight: bold; }
+
+        /* ++++++++++++++++================== LAYOUT GRID DASHBOARD ======================+++++++++++++++ */
+        .dashboard-container {
+            padding: 30px;
+            display: grid;
+            grid-template-areas: 
+                "kpi1 kpi2 kpi3 budget"
+                "main main main pie"
+                "list list list list";
+            grid-template-columns: 1fr 1fr 1fr 1.5fr;
+            gap: 20px;
+            max-width: 1400px; margin: 0 auto; width: 100%;
+        }
+
+        /* ++++++++++++++++================== ESTILOS DE CARDS & KPIS ======================+++++++++++++++ */
+        .card {
+            background: rgba(20, 20, 20, 0.6); border: 1px solid var(--border); border-radius: 8px;
+            padding: 20px; position: relative; backdrop-filter: blur(5px);
+        }
+        .card h3 { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .kpi-value { font-size: 2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .kpi-sub { font-size: 0.8rem; display: flex; align-items: center; gap: 5px; }
+        .trend-up { color: var(--alert-color); }
+        .trend-down { color: var(--theme-color); }
+
+        /* ++++++++++++++++================== BARRA DE ORÇAMENTO (BUDGET) ======================+++++++++++++++ */
+        .budget-container { margin-top: 15px; }
+        .budget-labels { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
+        .progress-bg { height: 10px; background: #333; border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--theme-color); width: 0%; transition: width 1s ease; }
+        .progress-fill.warning { background: #ffae00; }
+        .progress-fill.danger { background: var(--alert-color); }
+
+        /* ++++++++++++++++================== TABELAS & LISTAS ======================+++++++++++++++ */
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th { text-align: left; padding: 12px; border-bottom: 1px solid #333; color: var(--theme-color); font-family: 'Orbitron'; }
+        td { padding: 12px; border-bottom: 1px solid #222; color: #ccc; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        
+        .status-badge { padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+        .status-active { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; }
+        .status-stopped { background: rgba(255, 68, 68, 0.2); color: #ff4444; border: 1px solid #ff4444; }
+
+        /* ++++++++++++++++================== AREAS DO GRID CSS ======================+++++++++++++++ */
+        .area-kpi1 { grid-area: kpi1; }
+        .area-kpi2 { grid-area: kpi2; }
+        .area-kpi3 { grid-area: kpi3; }
+        .area-budget { grid-area: budget; }
+        .area-main { grid-area: main; }
+        .area-pie { grid-area: pie; }
+        .area-list { grid-area: list; }
+
+        .btn-back {
+            position: fixed; bottom: 20px; right: 20px; padding: 10px 20px;
+            background: #000; border: 1px solid var(--theme-color); color: var(--theme-color);
+            text-decoration: none; font-weight: bold; font-family: 'Orbitron'; border-radius: 4px;
+            z-index: 50; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: var(--theme-color); color: #000; }
+
+        @media (max-width: 1000px) {
+            .dashboard-container { 
+                grid-template-areas: "kpi1" "kpi2" "kpi3" "budget" "main" "pie" "list";
+                grid-template-columns: 1fr; 
+            }
+            .nav-controls { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="font-family: 'Orbitron'; color: var(--theme-color); letter-spacing: 2px;">SYNCING FINANCIAL DATA...</p>
+    </div>
+
+    <nav>
+        <div class="brand">
+            <i class="fa-solid fa-cloud"></i> ORACLE COST MANAGER <span style="font-size:0.7rem; opacity:0.7; border:1px solid #444; padding:2px 5px; border-radius:3px;">PRO</span>
+        </div>
+        <div class="nav-controls">
+            <button class="btn-control btn-active" onclick="setPeriod(7)" id="btn7d">7 Days</button>
+            <button class="btn-control" onclick="setPeriod(30)" id="btn30d">30 Days</button>
+            <button class="btn-control" onclick="setPeriod(90)" id="btn90d">90 Days</button>
+            <div style="width: 1px; background: #333; height: 30px;"></div>
+            <select id="currencySelect" onchange="updateCurrency()">
+                <option value="BRL">BRL (R$)</option>
+                <option value="USD">USD ($)</option>
+            </select>
+            <select id="regionSelect" onchange="updateData()">
+                <option value="sa-saopaulo-1">🇧🇷 Brazil East (São Paulo)</option>
+                <option value="us-ashburn-1">🇺🇸 US East (Ashburn)</option>
+            </select>
+            <button class="btn-control" onclick="exportCSV()"><i class="fa-solid fa-download"></i> Export</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <div class="card area-kpi1">
+            <h3>Total Cost (Period)</h3>
+            <div class="kpi-value" id="kpiCost">R$ 0,00</div>
+            <div class="kpi-sub trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12.5% vs Previous</div>
+        </div>
+
+        <div class="card area-kpi2">
+            <h3>Forecast (End of Month)</h3>
+            <div class="kpi-value" id="kpiForecast" style="color: #bbb;">R$ 0,00</div>
+            <div class="kpi-sub"><i class="fa-solid fa-calculator"></i> AI Prediction</div>
+        </div>
+
+        <div class="card area-kpi3">
+            <h3>Active Resources</h3>
+            <div class="kpi-value" id="kpiResources">0</div>
+            <div class="kpi-sub" style="color: var(--theme-color);"><i class="fa-solid fa-check-circle"></i> 100% Healthy</div>
+        </div>
+
+        <div class="card area-budget">
+            <h3>Budget Consumption</h3>
+            <div class="kpi-value" id="kpiBudgetPercent">0%</div>
+            <div class="budget-container">
+                <div class="budget-labels">
+                    <span id="spentLabel">Spent: 0</span>
+                    <span id="limitLabel">Limit: 10,000</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill" id="budgetBar" style="width: 0%;"></div>
+                </div>
+            </div>
+            <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">Alert Threshold: 80%</p>
+        </div>
+
+        <div class="card area-main">
+            <h3>Daily Cost Trend & Forecast</h3>
+            <div class="chart-container">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card area-pie">
+            <h3>Cost by Service</h3>
+            <div class="chart-container">
+                <canvas id="doughChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card area-list">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Top Spending Resources</h3>
+                <input type="text" placeholder="Search OCID..." style="background:#000; border:1px solid #333; color:#fff; padding:5px 10px;">
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Resource Name</th>
+                            <th>Service</th>
+                            <th>Region</th>
+                            <th>Status</th>
+                            <th>Cost (Period)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resourceTable">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="../index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> VOLTAR</a>
+
+    <script>
+        // ++++++++++++++++================== ESTADO & DADOS MOCKADOS ======================+++++++++++++++
+        let currentPeriod = 7;
+        let currentCurrency = 'BRL';
+        let currentRegion = 'sa-saopaulo-1';
+        let exchangeRate = 0.20; // 1 BRL = 0.20 USD (aprox)
+        
+        // Dados Base (Simulados para cada região)
+        const rawData = {
+            'sa-saopaulo-1': {
+                daily: Array.from({length: 90}, () => Math.floor(Math.random() * (800 - 400) + 400)), // 90 dias de dados
+                services: [35, 25, 20, 10, 10], // Compute, DB, Storage, Network, Other
+                resources: [
+                    { name: "db-exadata-prod-01", type: "Database", status: "active", cost: 4500 },
+                    { name: "vm-app-server-clust-01", type: "Compute", status: "active", cost: 1200 },
+                    { name: "obj-storage-archive-backup", type: "Storage", status: "active", cost: 340 },
+                    { name: "lb-public-frontend", type: "Networking", status: "active", cost: 150 },
+                    { name: "vm-dev-test-box", type: "Compute", status: "stopped", cost: 45 }
+                ]
+            },
+            'us-ashburn-1': {
+                daily: Array.from({length: 90}, () => Math.floor(Math.random() * (1200 - 800) + 800)),
+                services: [50, 10, 30, 5, 5],
+                resources: [
+                    { name: "gpu-cluster-ai-train", type: "Compute", status: "active", cost: 8500 },
+                    { name: "adw-analytics-warehouse", type: "Database", status: "active", cost: 3200 },
+                    { name: "vpn-site-to-site-tunnel", type: "Networking", status: "active", cost: 50 }
+                ]
+            }
+        };
+
+        // Variáveis globais para instâncias de gráficos
+        let lineChart = null;
+        let doughChart = null;
+
+        // ++++++++++++++++================== INICIALIZAÇÃO ======================+++++++++++++++
+        window.onload = () => {
+            // Efeito de carregamento inicial
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            }, 1000);
+            updateData();
+        };
+
+        // ++++++++++++++++================== FUNÇÕES DE CONTROLE ======================+++++++++++++++
+        
+        function setPeriod(days) {
+            currentPeriod = days;
+            // Atualiza classe ativa dos botões
+            document.querySelectorAll('.btn-control').forEach(b => b.classList.remove('btn-active'));
+            document.getElementById(`btn${days}d`).classList.add('btn-active');
+            updateData();
+        }
+
+        function updateCurrency() {
+            currentCurrency = document.getElementById('currencySelect').value;
+            updateData();
+        }
+
+        function updateData() {
+            currentRegion = document.getElementById('regionSelect').value;
+            const data = rawData[currentRegion];
+            
+            // 1. Filtrar dados pelo período (últimos X dias)
+            const slicedDaily = data.daily.slice(-currentPeriod);
+            
+            // 2. Calcular Totais
+            let total = slicedDaily.reduce((a, b) => a + b, 0);
+            let budgetLimit = 40000; // Limite fixo simulado
+
+            // Lógica de Conversão de Moeda
+            let displayTotal = total;
+            let displayLimit = budgetLimit;
+            let symbol = 'R$';
+
+            if(currentCurrency === 'USD') {
+                displayTotal = total * exchangeRate;
+                displayLimit = budgetLimit * exchangeRate;
+                symbol = '$';
+            }
+
+            // 3. Atualizar Elementos KPI no DOM
+            const fmt = new Intl.NumberFormat(currentCurrency === 'BRL' ? 'pt-BR' : 'en-US', { style: 'currency', currency: currentCurrency });
+            
+            document.getElementById('kpiCost').innerText = fmt.format(displayTotal);
+            document.getElementById('kpiForecast').innerText = fmt.format(displayTotal * 1.2); // Previsão simples +20%
+            document.getElementById('kpiResources').innerText = data.resources.length;
+
+            // 4. Lógica da Barra de Budget
+            const percent = (displayTotal / displayLimit) * 100;
+            document.getElementById('kpiBudgetPercent').innerText = percent.toFixed(1) + '%';
+            document.getElementById('spentLabel').innerText = `Spent: ${fmt.format(displayTotal)}`;
+            document.getElementById('limitLabel').innerText = `Limit: ${fmt.format(displayLimit)}`;
+            
+            const bar = document.getElementById('budgetBar');
+            bar.style.width = percent + '%';
+            bar.className = 'progress-fill'; // Reset classes
+            if(percent > 80) bar.classList.add('warning');
+            if(percent > 100) bar.classList.add('danger');
+
+            // 5. Atualizar Tabela de Recursos
+            const tbody = document.getElementById('resourceTable');
+            tbody.innerHTML = '';
+            data.resources.forEach(res => {
+                let cost = res.cost;
+                if(currentCurrency === 'USD') cost = cost * exchangeRate;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:bold; color:#fff;">${res.name}</td>
+                        <td>${res.type}</td>
+                        <td>${currentRegion}</td>
+                        <td><span class="status-badge ${res.status === 'active' ? 'status-active' : 'status-stopped'}">${res.status}</span></td>
+                        <td>${fmt.format(cost)}</td>
+                    </tr>
+                `;
+            });
+
+            // 6. Redesenhar Gráficos
+            renderCharts(slicedDaily, data.services, symbol);
+        }
+
+        // ++++++++++++++++================== RENDERIZAÇÃO DE GRÁFICOS (CHART.JS) ======================+++++++++++++++
+        function renderCharts(dailyData, serviceData, symbol) {
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            const ctxDough = document.getElementById('doughChart').getContext('2d');
+
+            // --- GRÁFICO DE LINHA (TENDÊNCIA) ---
+            if(lineChart) lineChart.destroy();
+            
+            const labels = dailyData.map((_, i) => `Day ${i+1}`);
+            
+            // Gradiente Visual
+            const gradient = ctxLine.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(0, 255, 136, 0.5)');
+            gradient.addColorStop(1, 'rgba(0, 255, 136, 0.0)');
+
+            lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Cost',
+                        data: currentCurrency === 'USD' ? dailyData.map(v => v * exchangeRate) : dailyData,
+                        borderColor: '#00ff88',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#666' } },
+                        y: { grid: { color: '#222' }, ticks: { color: '#666', callback: (val) => symbol + val } }
+                    }
+                }
+            });
+
+            // --- GRÁFICO DE ROSCA (DISTRIBUIÇÃO) ---
+            if(doughChart) doughChart.destroy();
+            doughChart = new Chart(ctxDough, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Compute', 'Database', 'Storage', 'Network', 'Other'],
+                    datasets: [{
+                        data: serviceData,
+                        backgroundColor: ['#00ff88', '#00f3ff', '#ffae00', '#ff4444', '#888'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#aaa' } } }
+                }
+            });
+        }
+
+        // ++++++++++++++++================== EXPORTAÇÃO ======================+++++++++++++++
+        function exportCSV() {
+            alert("Simulação: Relatório 'Cloud_Cost_Report_v3.csv' gerado e baixado com sucesso!");
+        }
+
+    </script>
+</body>
+</html>

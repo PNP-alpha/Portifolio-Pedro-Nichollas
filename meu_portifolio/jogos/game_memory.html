@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Binary Memory | PNP Arcade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --neon: #ffae00; --bg: #050505; --card-back: #111; }
+        body { 
+            margin: 0; background: var(--bg); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; height: 100vh;
+            font-family: 'Orbitron', sans-serif; color: var(--neon);
+        }
+        .game-grid {
+            display: grid; grid-template-columns: repeat(4, 100px); gap: 15px;
+            perspective: 1000px; margin-bottom: 20px;
+        }
+        .card {
+            width: 100px; height: 100px; position: relative;
+            transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+        }
+        .card.flip { transform: rotateY(180deg); }
+        .face {
+            width: 100%; height: 100%; position: absolute; backface-visibility: hidden;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 3rem; border-radius: 8px; border: 2px solid var(--neon);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .front { background: var(--card-back); color: var(--neon); transform: rotateY(180deg); }
+        .back { background: #000; color: #333; font-size: 2rem; }
+        
+        .header { margin-bottom: 30px; text-align: center; }
+        .back-btn { 
+            color: var(--neon); text-decoration: none; border: 1px solid var(--neon); 
+            padding: 10px 20px; font-weight: bold; transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--neon); color: #000; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>BINARY MEMORY</h1>
+        <p>Moves: <span id="moves">0</span></p>
+    </div>
+
+    <div class="game-grid" id="grid">
+        </div>
+
+    <a href="../index.html" class="back-btn">SAIR DO SISTEMA</a>
+
+    <script>
+        // ++++++++++++++++================== LOGIC ======================+++++++++++++++
+        const icons = [
+            'fa-brands fa-python', 'fa-brands fa-js', 'fa-brands fa-java', 'fa-solid fa-database',
+            'fa-solid fa-code', 'fa-solid fa-terminal', 'fa-solid fa-microchip', 'fa-solid fa-network-wired'
+        ];
+        
+        // Duplicar e Embaralhar
+        let cards = [...icons, ...icons];
+        cards.sort(() => 0.5 - Math.random());
+
+        const grid = document.getElementById('grid');
+        const movesDisplay = document.getElementById('moves');
+        let moves = 0;
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let matches = 0;
+
+        function createBoard() {
+            cards.forEach(iconClass => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.icon = iconClass;
+
+                const frontFace = document.createElement('div');
+                frontFace.classList.add('face', 'front');
+                frontFace.innerHTML = `<i class="${iconClass}"></i>`;
+
+                const backFace = document.createElement('div');
+                backFace.classList.add('face', 'back');
+                backFace.innerHTML = '<i class="fa-solid fa-gem"></i>';
+
+                card.appendChild(frontFace);
+                card.appendChild(backFace);
+                card.addEventListener('click', flipCard);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flip');
+
+            if (!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            moves++;
+            movesDisplay.innerText = moves;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.icon === secondCard.dataset.icon;
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            resetBoard();
+            matches++;
+            if(matches === icons.length) {
+                setTimeout(() => alert(`SYSTEM HACKED! Moves: ${moves}`), 500);
+            }
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flip');
+                secondCard.classList.remove('flip');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
