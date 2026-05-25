@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Tetris | PNP Systems</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="tetris_style.css">
+</head>
+<body>
+
+    <!-- BOTÃO DE SAÍDA UNIVERSAL BLINDADO -->
+    <a href="../../index.html" class="universal-exit-btn">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> SISTEMA PRINCIPAL
+    </a>
+
+    <!-- TELA DE INÍCIO E RANKING -->
+    <div id="start-screen" class="screen-overlay">
+        <div class="terminal-window">
+            <h1 class="glitch-title">CYBER TETRIS v1.0</h1>
+            <p class="subtitle">SISTEMA DE COMPACTAÇÃO DE CLUSTERS</p>
+            
+            <div class="leaderboard-container">
+                <h3><i class="fa-solid fa-database"></i> ÚLTIMOS 10 RESULTADOS</h3>
+                <table id="scores-table">
+                    <thead>
+                        <tr>
+                            <th>INDEX</th>
+                            <th>DATA/HORA</th>
+                            <th>SCORE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scores-body">
+                        <!-- Injetado via Javascript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <button id="btn-start" class="cyber-start-btn">
+                <span class="btn-glow"></span>
+                INICIAR COMPILAÇÃO
+            </button>
+        </div>
+    </div>
+
+    <!-- PAINEL PRINCIPAL DO JOGO -->
+    <div class="game-container">
+        <div class="board-wrapper">
+            <canvas id="gameCanvas" width="300" height="600"></canvas>
+        </div>
+        
+        <!-- SIDEBAR DE STATUS (HUD) -->
+        <div class="sidebar-hud">
+            <div class="hud-box next-box">
+                <div class="hud-label">PRÓXIMO</div>
+                <canvas id="nextCanvas" width="120" height="120"></canvas>
+            </div>
+
+            <div class="hud-box">
+                <div class="hud-label">PONTUAÇÃO</div>
+                <div class="hud-value" id="score">000000</div>
+            </div>
+
+            <div class="hud-box">
+                <div class="hud-label">NÍVEL</div>
+                <div class="hud-value" id="level">01</div>
+            </div>
+
+            <div class="hud-box">
+                <div class="hud-label">LINHAS</div>
+                <div class="hud-value" id="lines">00</div>
+            </div>
+            
+            <div class="controls-hint">
+                <p>[A / D] ou Setas: Mover</p>
+                <p>[W] ou Seta Cima: Rotar</p>
+                <p>[S] ou Seta Baixo: Queda Rápida</p>
+                <p>[ESPAÇO]: Queda Instantânea</p>
+                <p>[ESC]: Sair para o Menu</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="tetris_script.js"></script>
+</body>
+</html>

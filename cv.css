@@ -1,4 +1,3 @@
-/* Reseta margens e define fonte profissional */
 * {
     margin: 0;
     padding: 0;
@@ -6,14 +5,13 @@
 }
 
 body {
-    background-color: #525659; /* Fundo cinza escuro para a tela (estilo visualizador de PDF) */
+    background-color: #525659;
     font-family: 'Inter', sans-serif;
     color: #333;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
 
-/* O Botão Flutuante de Imprimir */
 .btn-print {
     position: fixed;
     top: 20px;
@@ -35,7 +33,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Configuração da "Folha de Papel A4" na tela */
 .page {
     background-color: white;
     width: 210mm;
@@ -45,7 +42,6 @@ body {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* Cabeçalho do CV */
 .cv-header {
     border-bottom: 2px solid #000;
     padding-bottom: 15px;
@@ -64,7 +60,7 @@ body {
 #cv-title {
     font-size: 16px;
     font-weight: 600;
-    color: #007bb5; /* Um azul sóbrio para destacar o cargo */
+    color: #007bb5;
     margin-bottom: 15px;
 }
 
@@ -82,14 +78,23 @@ body {
     gap: 5px;
 }
 
-/* Grid Principal (2 colunas) */
+/* ==========================================
+   NOVO SISTEMA DE COLUNAS (FLEXBOX MULTI-PAGE)
+   ========================================== */
 .cv-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
+    display: flex;
     gap: 30px;
+    align-items: flex-start; /* CRÍTICO: Permite quebra de página independente nas colunas */
 }
 
-/* Seções */
+.main-column {
+    flex: 2; /* Ocupa 2/3 do espaço */
+}
+
+.side-column {
+    flex: 1; /* Ocupa 1/3 do espaço */
+}
+
 .cv-section {
     margin-bottom: 25px;
 }
@@ -111,7 +116,6 @@ body {
     text-align: justify;
 }
 
-/* Blocos de Itens (Empregos, Cursos) */
 .item-block {
     margin-bottom: 15px;
 }
@@ -157,30 +161,53 @@ body {
     font-size: 12px;
 }
 
+/* ... mantenha todo o estilo anterior até chegar no final ... */
+
 /* ==========================================
-   CONFIGURAÇÃO DE IMPRESSÃO (O Segredo)
+   CONFIGURAÇÃO DE IMPRESSÃO (Aprimorada)
    ========================================== */
 @media print {
-    /* Esconde o botão de imprimir e a cor de fundo cinza */
     body { background-color: white; }
     .btn-print { display: none; }
     
-    /* Remove sombras e margens da "folha" para a impressora usar a folha real */
     .page {
         margin: 0;
         box-shadow: none;
         width: 100%;
-        padding: 10mm; /* Margem interna menor para caber mais coisa */
+        padding: 10mm;
+        min-height: auto;
     }
 
-    /* Força a folha a ser A4 */
     @page {
         size: A4;
-        margin: 0; 
+        margin: 15mm; /* Margem física real para a impressora */
     }
 
-    /* Impede que blocos quebrem no meio da página */
-    .item-block, .cv-section {
+    /* BLOQUEIO DE QUEBRA GROTESCA */
+    /* Impede que o navegador corte o item ao meio */
+    .item-block {
         page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 12px;
+    }
+
+    /* Impede que títulos fiquem isolados no final da página */
+    .section-title {
+        page-break-after: avoid;
+        break-after: avoid;
+        margin-top: 20px;
+    }
+
+    /* Força uma quebra limpa entre seções se necessário */
+    .cv-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Otimização do Flexbox para múltiplas páginas */
+    .cv-grid {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
     }
 }

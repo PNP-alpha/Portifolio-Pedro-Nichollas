@@ -16,6 +16,7 @@
             --panel: #252526; 
             --text: #cccccc; 
             --border: #333; 
+            --error: #f44336;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,6 +42,8 @@
         }
         .logo { font-family: 'Orbitron'; color: var(--accent); font-weight: bold; }
         
+        .relative-container { position: relative; }
+        
         .btn-run { 
             position: absolute; top: 5px; right: 20px; 
             background: var(--accent); color: #000; border: none; 
@@ -53,7 +56,6 @@
         /* ++++++++++++++++================== LAYOUT WORKSPACE ======================+++++++++++++++ */
         .workspace { display: grid; grid-template-columns: 250px 1fr; height: 100%; overflow: hidden; }
         
-        /* Sidebar */
         .sidebar { background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
         
         .sidebar-header { 
@@ -61,6 +63,12 @@
             text-transform: uppercase; color: #888; display: flex; 
             justify-content: space-between; align-items: center; 
         }
+        .mt-20 { margin-top: 20px; }
+        
+        .refresh-icon { cursor: pointer; }
+        .text-green-500 { color: #4caf50; }
+        .text-blue-400 { color: #42a5f5; }
+        .text-yellow-500 { color: #ffeb3b; }
         
         .file-item { 
             padding: 8px 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; 
@@ -90,6 +98,10 @@
             border-bottom: 1px solid var(--border); align-items: center; 
         }
         
+        .status-text { font-size: 0.75rem; color: #888; margin-right: auto; }
+        .status-highlight { color: var(--accent); }
+        .status-error { color: var(--error) !important; }
+        
         .btn-tool { background: #333; color: #fff; border: 1px solid #444; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; border-radius: 3px; }
         .btn-tool:hover { background: var(--accent); color: #000; }
 
@@ -101,6 +113,11 @@
 
         .log-success { color: #4caf50; padding: 20px; font-family: 'Consolas'; }
         .log-error { color: #f44336; padding: 20px; font-family: 'Consolas'; }
+        
+        .empty-state { padding: 20px; color: #666; text-align: center; font-family: 'Consolas'; margin-top: 20px; }
+        .empty-state-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .processing-state { padding: 20px; text-align: center; color: var(--accent); }
+        .no-tables-msg { padding: 10px; font-size: 0.8rem; color: #666; }
 
         /* ++++++++++++++++================== BARRA DE STATUS ======================+++++++++++++++ */
         .status-bar { background: var(--accent); color: #000; font-size: 0.75rem; display: flex; justify-content: space-between; padding: 0 10px; align-items: center; font-weight: bold; }
@@ -111,26 +128,25 @@
 
     <div class="top-bar">
         <div class="logo"><i class="fa-solid fa-layer-group"></i> DATAFORGE IDE v4.0</div>
-        <div style="position: relative;">
+        <div class="relative-container">
             <button class="btn-run" onclick="runQuery()"><i class="fa-solid fa-play"></i> RUN (F5)</button>
         </div>
     </div>
 
     <div class="workspace">
-        
         <div class="sidebar">
             <div class="sidebar-header">CONNECTIONS</div>
             <div class="file-item active"><i class="fa-solid fa-server text-green-500"></i> ORACLE_CLOUD_DB</div>
             
             <div class="sidebar-header">
                 <span>TABLES</span>
-                <i class="fa-solid fa-refresh" style="cursor:pointer;" onclick="renderSidebar()" title="Refresh"></i>
+                <i class="fa-solid fa-refresh refresh-icon" onclick="renderSidebar()" title="Refresh"></i>
             </div>
             <div id="tableList"></div>
 
-            <div class="sidebar-header" style="margin-top: 20px;">SAVED SCRIPTS</div>
+            <div class="sidebar-header mt-20">SAVED SCRIPTS</div>
             <div class="file-item" onclick="loadScript('select')"><i class="fa-solid fa-file-code text-blue-400"></i> query_users.sql</div>
-            <div class="file-item" onclick="loadScript('create')"><i class="fa-solid fa-plus text-green-400"></i> create_table.sql</div>
+            <div class="file-item" onclick="loadScript('create')"><i class="fa-solid fa-plus text-green-500"></i> create_table.sql</div>
         </div>
 
         <div class="editor-pane">
@@ -143,13 +159,13 @@
 
             <div class="results-area">
                 <div class="results-toolbar">
-                    <span style="font-size:0.75rem; color:#888; margin-right:auto;">STATUS: <span id="statusMsg" style="color:var(--accent)">READY</span> | ROWS: <span id="rowCount">0</span></span>
+                    <span class="status-text">STATUS: <span id="statusMsg" class="status-highlight">READY</span> | ROWS: <span id="rowCount">0</span></span>
                     <button class="btn-tool" onclick="exportData('csv')"><i class="fa-solid fa-file-csv"></i> CSV</button>
                     <button class="btn-tool" onclick="exportData('json')"><i class="fa-solid fa-file-code"></i> JSON</button>
                 </div>
                 <div id="gridContainer">
-                    <div style="padding:20px; color:#666; text-align:center; font-family:'Consolas'; margin-top: 20px;">
-                        <i class="fa-solid fa-database" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i>
+                    <div class="empty-state">
+                        <i class="fa-solid fa-database empty-state-icon"></i>
                         Waiting for query execution...
                     </div>
                 </div>
@@ -163,7 +179,6 @@
     </div>
 
     <script>
-        // ++++++++++++++++================== MOCK DATABASE ENGINE ======================+++++++++++++++
         let dbState = {
             "TB_CLIENTES": [
                 { id: 101, nome: "Pedro Silva", email: "pedro@gmail.com", status: "ATIVO" },
@@ -181,27 +196,20 @@
             ]
         };
 
-        // ++++++++++++++++================== INICIALIZAÇÃO ======================+++++++++++++++
         document.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
-            
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'F5') {
-                    e.preventDefault();
-                    runQuery();
-                }
+                if (e.key === 'F5') { e.preventDefault(); runQuery(); }
             });
         });
 
-        // ++++++++++++++++================== UI CONTROLLERS ======================+++++++++++++++
         function renderSidebar() {
             const list = document.getElementById('tableList');
             list.innerHTML = ''; 
 
             const tables = Object.keys(dbState);
-            
             if(tables.length === 0) {
-                list.innerHTML = '<div style="padding:10px; font-size:0.8rem; color:#666;">No tables found</div>';
+                list.innerHTML = '<div class="no-tables-msg">No tables found</div>';
                 return;
             }
 
@@ -217,7 +225,6 @@
             });
         }
 
-        // ++++++++++++++++================== SQL PARSER & EXECUTOR ======================+++++++++++++++
         function runQuery() {
             const rawSql = document.getElementById('sqlInput').value.trim();
             const grid = document.getElementById('gridContainer');
@@ -226,15 +233,14 @@
 
             if(!rawSql) return;
 
-            // Loading UI
-            grid.innerHTML = '<div style="padding:20px; text-align:center; color:var(--accent);">Processing Query... <i class="fa-solid fa-spinner fa-spin"></i></div>';
+            grid.innerHTML = '<div class="processing-state">Processing Query... <i class="fa-solid fa-spinner fa-spin"></i></div>';
             statusMsg.innerText = "EXECUTING...";
+            statusMsg.classList.remove('status-error');
 
             setTimeout(() => {
                 try {
                     const sql = rawSql.toUpperCase();
                     
-                    // --- PARSER: SELECT ---
                     if (sql.startsWith('SELECT')) {
                         const parts = sql.split('FROM');
                         if(parts.length < 2) throw new Error("Syntax Error: Missing FROM clause");
@@ -249,8 +255,6 @@
                             throw new Error(`ORA-00942: table or view '${tableName}' does not exist`);
                         }
                     } 
-                    
-                    // --- PARSER: CREATE TABLE ---
                     else if (sql.startsWith('CREATE TABLE')) {
                         const regex = /CREATE TABLE\s+(\w+)/i;
                         const match = sql.match(regex);
@@ -269,8 +273,6 @@
                             throw new Error("Syntax Error: Invalid CREATE statement");
                         }
                     }
-
-                    // --- PARSER: DROP TABLE ---
                     else if (sql.startsWith('DROP TABLE')) {
                         const tableName = sql.replace('DROP TABLE', '').replace(';', '').trim();
                         
@@ -285,8 +287,6 @@
                             throw new Error(`ORA-00942: table '${tableName}' does not exist`);
                         }
                     }
-
-                    // --- PARSER: INSERT ---
                     else if (sql.startsWith('INSERT INTO')) {
                         const regex = /INSERT INTO\s+(\w+)/i;
                         const match = sql.match(regex);
@@ -299,21 +299,20 @@
                             throw new Error("Target table not found or invalid syntax");
                         }
                     } else {
-                        throw new Error("ORA-00900: invalid SQL statement (Supported: SELECT, CREATE, DROP, INSERT)");
+                        throw new Error("ORA-00900: invalid SQL statement");
                     }
 
                 } catch (err) {
                     grid.innerHTML = `<div class="log-error"><b>ERROR:</b> ${err.message}</div>`;
                     statusMsg.innerText = "FAILED";
-                    statusMsg.style.color = "#f44336";
+                    statusMsg.classList.add('status-error');
                 }
             }, 600);
         }
 
-        // ++++++++++++++++================== UTILITÁRIOS ======================+++++++++++++++
         function renderTable(data) {
             if(!data || data.length === 0) {
-                document.getElementById('gridContainer').innerHTML = '<div style="padding:20px; color:#888;">Table is empty (0 rows).</div>';
+                document.getElementById('gridContainer').innerHTML = '<div class="empty-state">Table is empty (0 rows).</div>';
                 return;
             }
             const headers = Object.keys(data[0]);

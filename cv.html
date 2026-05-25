@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currículo | Pedro Nichollas</title>
-    
+    <title>Currículo | Pedro Nichollas Palrinhas</title>
     <link rel="stylesheet" href="cv.css">
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -18,13 +15,10 @@
     </button>
 
     <div class="page">
-        
         <header class="cv-header">
             <h1 id="cv-name">Carregando...</h1>
             <h2 id="cv-title"></h2>
-            
-            <div class="contact-info" id="cv-contact">
-                </div>
+            <div class="contact-info" id="cv-contact"></div>
         </header>
 
         <section class="cv-section">
@@ -33,34 +27,27 @@
         </section>
 
         <div class="cv-grid">
-            
             <div class="main-column">
-                
                 <section class="cv-section">
                     <h3 class="section-title">Experiência Profissional</h3>
-                    <div id="cv-experience">
-                        </div>
+                    <div id="cv-experience"></div>
                 </section>
 
                 <section class="cv-section">
-                    <h3 class="section-title">Projetos em Destaque</h3>
-                    <div id="cv-projects">
-                        </div>
+                    <h3 class="section-title">Projetos em Destaque & Portfólio</h3>
+                    <div id="cv-projects"></div>
                 </section>
             </div>
 
             <div class="side-column">
-                
                 <section class="cv-section">
                     <h3 class="section-title">Formação Acadêmica</h3>
-                    <div id="cv-education">
-                        </div>
+                    <div id="cv-education"></div>
                 </section>
 
                 <section class="cv-section">
                     <h3 class="section-title">Certificações</h3>
-                    <div id="cv-certs">
-                        </div>
+                    <div id="cv-certs"></div>
                 </section>
             </div>
         </div>
@@ -69,16 +56,15 @@
     <script>
         async function loadCV() {
             try {
-                // 1. Busca o arquivo JSON raiz
                 const response = await fetch('dados.json');
                 const data = await response.json();
 
-                // 2. Preenche o Perfil
                 document.getElementById('cv-name').textContent = data.perfil.nome;
                 document.getElementById('cv-title').textContent = data.perfil.titulo;
-                document.getElementById('cv-summary').textContent = data.perfil.subtitulo;
+                
+                //Meu Resumo Profissional
+                document.getElementById('cv-summary').textContent = "Profissional multidisciplinar que une Engenharia de Software, Direção Criativa e Gestão de Operações. Desenvolvedor de sistemas corporativos robustos e motores lógicos avançados, com expertise complementar em produção audiovisual cinematográfica e branding corporativo. Minha vivência abrange desde a coordenação de projetos no setor público até a arquitetura de dados complexos, garantindo excelência técnica, estética e funcional em cada entrega de projeto.";
 
-                // 3. Preenche Contatos (Formatando os links para leitura em papel)
                 const contatosHtml = `
                     <span><i class="fa-solid fa-envelope"></i> ${data.contato.email}</span>
                     <span><i class="fa-brands fa-whatsapp"></i> ${data.contato.whatsapp.replace('https://wa.me/', '+')}</span>
@@ -88,7 +74,6 @@
                 `;
                 document.getElementById('cv-contact').innerHTML = contatosHtml;
 
-                // 4. Preenche Experiência Profissional
                 const expHtml = data.carreira.map(item => `
                     <div class="item-block">
                         <div class="item-header">
@@ -101,8 +86,7 @@
                 `).join('');
                 document.getElementById('cv-experience').innerHTML = expHtml;
 
-                // 5. Preenche Projetos (Limitado aos 3 primeiros para não vazar a folha A4)
-                const projHtml = data.projetos.slice(0, 3).map(item => `
+                const projHtml = data.projetos.map(item => `
                     <div class="item-block">
                         <h4 class="item-title">${item.titulo}</h4>
                         <p class="item-desc">${item.descricao}</p>
@@ -110,7 +94,6 @@
                 `).join('');
                 document.getElementById('cv-projects').innerHTML = projHtml;
 
-                // 6. Preenche Formação Acadêmica
                 const eduHtml = data.formacao.map(item => `
                     <div class="item-block">
                         <h4 class="item-title">${item.curso}</h4>
@@ -120,7 +103,6 @@
                 `).join('');
                 document.getElementById('cv-education').innerHTML = eduHtml;
 
-                // 7. Preenche Certificações
                 const certsHtml = data.certificados.map(item => `
                     <div class="item-block small-margin">
                         <h4 class="item-title text-sm"><i class="fa-solid fa-certificate"></i> ${item.titulo}</h4>
@@ -128,25 +110,17 @@
                 `).join('');
                 document.getElementById('cv-certs').innerHTML = certsHtml;
 
-                // ==========================================
-                // TRUQUE DO AUTO-PRINT (Download Automático)
-                // ==========================================
-                // Verifica se o usuário chegou aqui através do botão "Baixar CV" do portfólio
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('action') === 'print') {
-                    // Espera meio segundo (500ms) para garantir que as fontes do Google e o layout renderizaram
-                    setTimeout(() => {
-                        window.print();
-                    }, 500);
+                    setTimeout(() => { window.print(); }, 500);
                 }
 
             } catch (error) {
-                console.error("Erro ao carregar os dados para o currículo:", error);
+                console.error("Erro ao processar matriz de dados:", error);
                 document.getElementById('cv-name').textContent = "Erro de Sincronização de Dados";
             }
         }
 
-        // Executa a função principal assim que a página é aberta
         loadCV();
     </script>
 </body>

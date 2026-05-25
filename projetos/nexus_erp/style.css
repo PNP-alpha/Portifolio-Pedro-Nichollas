@@ -1,0 +1,133 @@
+/* =========================================================
+   NEXUS ERP v8.5 - CONFIGURAÇÕES ESTÉTICAS CORPORATIVAS
+   ========================================================= */
+
+body {
+    background-color: #0b0f19;
+}
+
+.font-tech {
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Otimizador de Scrollbars Estilo Enterprise */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+::-webkit-scrollbar-track {
+    background: #0b0f19;
+}
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6;
+}
+
+/* Mecânica de Transição de Visibilidade SPA */
+.view-section {
+    display: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.view-section.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Botões do Menu Lateral Sidebar */
+.nav-btn {
+    color: #94a3b8;
+    background: transparent;
+}
+.nav-btn:hover {
+    color: #f8fafc;
+    background: rgba(30, 41, 59, 0.4);
+}
+.nav-btn.active {
+    background: #1e293b !important;
+    border-left: 3px solid #3b82f6;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Modais Popups */
+.modal {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: all 0.2s ease-in-out;
+    z-index: 9999;
+}
+.modal.active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* Notificações Flutuantes (Toasts System Logs) */
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.toast {
+    padding: 12px 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.98);
+    -webkit-backdrop-filter:blur();
+    backdrop-filter: blur(8px);
+    border: 1px solid #1e293b;
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    border-left: 4px solid #3b82f6;
+}
+.toast.show {
+    transform: translateX(0);
+}
+.toast-success { border-left-color: #10b981; }
+.toast-error { border-left-color: #ef4444; }
+.toast-warning { border-left-color: #f59e0b; }
+.toast-info { border-left-color: #3b82f6; }
+
+/* Revestimento de Painéis de Dados (Glassmorphism) */
+.glass {
+    background: rgba(15, 22, 41, 0.75);
+    -webkit-backdrop-filter: blur(12);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Customização Forçada do Leaflet Map (Dark Canvas) */
+.leaflet-container {
+    background: #060913 !important;
+}
+.custom-div-icon {
+    background: transparent !important;
+    border: none !important;
+}
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background: #111625 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Remover botões nativos de scrollbars em painéis CLI */
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}

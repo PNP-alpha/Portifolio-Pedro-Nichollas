@@ -27,9 +27,9 @@
   "_SECAO_PERFIL": "++++++++++++++++================== DADOS DO PERFIL ======================+++++++++++++++",
   "perfil": {
     "nome": "Pedro Nichollas Palrinhas",
-    "titulo": "Desenvolvedor WEB | Oracle ERP| DBA",
+    "titulo": "Desenvolvedor WEB | Designer | DBA",
     "subtitulo": "Transformando ideias em interfaces inteligentes e sistemas robustos.",
-    "numero_misterioso": "System v4.0",
+    "numero_misterioso": "System v5.0",
     "nas": "2026",
     "foto": "assets/perfil.jpg"
   },
@@ -47,7 +47,7 @@
 
   "_SECAO_NOTICIAS": "++++++++++++++++================== NEWS TICKER ======================+++++++++++++++",
   "noticias": {
-    "rss_url": "https://www.tabnews.com.br/recentes/rss",
+    "rss_url": "https://canaltech.com.br/rss/",
     "velocidade_animacao": "60s",
     "noticia_fake": "🚀 SYSTEM UPDATE: Diretórios reestruturados. Módulos 'Jogos' e 'Projetos' operando em clusters independentes."
   },
@@ -56,32 +56,33 @@
   "radio_config": {
     "volume_inicial": 0.3,
     "estacoes": [
-        { "nome": "ROCK", "url": "https://pess01.com.br/8074/stream" },
-        { "nome": "MPB", "url": "https://painel.fabricahost.com.br/8164/stream" },
-        { "nome": "ELECTRO", "url": "https://ssl.pivox.com.br:8224/stream" },
-        { "nome": "SAMBA", "url": "https://shaincast.com.br:7039/stream" },
-        { "nome": "POP", "url": "https://painel.topstreaming.com.br/8020/stream" },
-        { "nome": "LOFI", "url": "https://lofi.stream.laut.fm/lofi" }
+        { "nome": "LOFI", "url": "https://lofi.stream.laut.fm/lofi" },
+        { "nome": "ELECTRO", "url": "https://dancewave.online/dance.mp3" },
+        { "nome": "CLASSIC", "url": "https://strm112.1.fm/classical_mobile_mp3" },
+        { "nome": "MPB", "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/NOVABRASIL_SP.mp3" },
+        { "nome": "SAMBA E PAGODE", "url": "https://stream.zeno.fm/vd8sgsq0zhouv" },
+        { "nome": "SERTANEJO", "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/NATIVA_SP.mp3" },
+        { "nome": "HITS", "url": "https://strm112.1.fm/top40_mobile_mp3" },
+        { "nome": "ROCK", "url": "https://stream.laut.fm/rock" },
+        { "nome": "JAZZ", "url": "https://smoothjazz.cdnstream1.com/2585_128.mp3" },
+        { "nome": "SYNTHWAVE", "url": "https://radio.plaza.one/mp3" },
+        { "nome": "CINEMATIC", "url": "https://stream.laut.fm/soundtrack" },
+        { "nome": "BOSSA NOVA", "url": "https://ice1.somafm.com/bossa-128-mp3" },
+        { "nome": "REGGAE", "url": "https://stream.laut.fm/reggae" }
     ]
-},
+  },
 
-  "_SECAO_PROJETOS": "++++++++++++++++================== LISTA DE PROJETOS (CAMINHOS ATUALIZADOS) ======================+++++++++++++++",
+  "_SECAO_PROJETOS": "++++++++++++++++================== LISTA DE PROJETOS ======================+++++++++++++++",
   "projetos": [
     {
-      "titulo": "Site_vitrine",
-      "descricao": "ste construido com o intuíto de apresentar itens ou serviçoes de alto valor e com imagem estrategicamente posicionada, não revelando preços e somente mostrando a qualidade do serviço.",
-      "link": "projetos/site_vitrine/index.html",
-      "imagem": "assets/vitrine.jpg"
-    },
-    {
       "titulo": "Nexus Enterprise ERP",
-      "descricao": "Sistema de Gestão Logística Completo. Inclui Rastreamento de Frota em Tempo Real (Leaflet), Dashboard Financeiro (Chart.js), Autenticação de Usuários e Módulos WMS/TMS.",
+      "descricao": "Sistema de Gestão Logística Completo. Inclui Rastreamento de Frota em Tempo Real, Dashboard Financeiro, Autenticação de Usuários e Módulos WMS/TMS.",
       "link": "projetos/nexus_erp/index.html",
       "imagem": "assets/proj_nexus.jpg"
     },
     {
       "titulo": "Portal do Cidadão (e-Gov)",
-      "descricao": "Sistema governamental completo (SPA) com módulos de Saúde, Tributos e Transparência. Design System responsivo e abrangente com todas as funções necessárias para o funcionamento de uma prefeitura.",
+      "descricao": "Sistema governamental completo (SPA) com módulos de Saúde, Tributos e Transparência. Design System responsivo para prefeituras.",
       "link": "projetos/proj_prefeitura.html",
       "imagem": "assets/proj_prefeitura.jpg"
     },
@@ -90,6 +91,12 @@
       "descricao": "Suite FinOps Enterprise com conversão de moeda em tempo real, budget alert e gráficos interativos Chart.js.",
       "link": "projetos/proj_finance.html",
       "imagem": "assets/projOracle.jpg"
+    },
+    {
+      "titulo": "Site_vitrine",
+      "descricao": "Site construido com o intuito de apresentar itens ou serviços de alto valor e com imagem estrategicamente posicionada, não revelando preços e mostrando a qualidade.",
+      "link": "projetos/site_vitrine/index.html",
+      "imagem": "assets/vitrine.jpg"
     },
     {
       "titulo": "GeoTactical Scanner v3",
@@ -105,6 +112,31 @@
     }
   ],
 
+  "_SECAO_JOGOS": "++++++++++++++++================== CLUSTERS DE MINI-GAMES ======================+++++++++++++++",
+  "mini_games": [
+    {
+      "nome": "PONG",
+      "link": "jogos/pong/game_pong.html",
+      "icone": "fa-table-tennis-paddle-ball"
+    },
+    {
+      "nome": "SNAKE",
+      "link": "jogos/snake/game_snake.html",
+      "icone": "fa-staff-snake"
+    },
+    {
+      "nome": "TETRIS",
+      "link": "jogos/tetris/game_tetris.html",
+      "icone": "fa-cubes-stacked"
+    },
+    {
+      "nome": "MEMORY",
+      "link": "jogos/memory/game_memory.html",
+      "icone": "fa-microchip"
+    }
+    
+  ],
+
   "_SECAO_FORMACAO": "++++++++++++++++================== EDUCAÇÃO ======================+++++++++++++++",
   "formacao": [
     {
@@ -114,13 +146,7 @@
       "detalhes": "Foco em Arquitetura de Software, Algoritmos Avançados e IA."
     },
     {
-      "curso": "Oracle Cloud Infrastructure Architect",
-      "periodo": "2025 - Cursando",
-      "instituicao": "Oracle University",
-      "detalhes": "Especialização em infraestrutura, networking e segurança em nuvem."
-    },
-    {
-      "curso": "Desenvolvimento WEB completo 2.0 ",
+      "curso": "Desenvolvimento WEB completo 2.0",
       "periodo": "2025 - Cursando",
       "instituicao": "Danki Code",
       "detalhes": "Especialização em desenvolvimento web completo de páginas e aplicações."
@@ -129,7 +155,19 @@
       "curso": "Bootcamp - Bradesco | GenAI & Dados",
       "periodo": "2026 - Finalizado",
       "instituicao": "Plataforma DIO",
-      "detalhes": "Especialização em dados, banco de dados, processos de ETL, linguagens de programação e IA's Generativas como suporte e ferramenta para ampliar e maximizar resultados."
+      "detalhes": "Especialização em dados, banco de dados, processos de ETL, linguagens de programação e IAs Generativas."
+    },
+    {
+      "curso": "Oracle Cloud Infrastructure Architect",
+      "periodo": "2025 - Cursando",
+      "instituicao": "Oracle University",
+      "detalhes": "Especialização em infraestrutura, networking e segurança em nuvem."
+    },
+    { 
+      "curso" : "GFT - Fundamentos de Cloud com AWS",
+      "periodo" : "2026 - Cursando,",
+      "instituicao" : "Plataforma DIO",
+      "detalhes" : "Dominar os fundamentos de cloud computing, configurar ambientes na AWS, criar e gerenciar instâncias com EC2, trabalhar com armazenamento em nuvem e aplicar boas práticas de segurança e arquitetura em projetos práticos."
     }
   ],
 
@@ -139,13 +177,13 @@
       "cargo": "Assessor de Comunicação",
       "periodo": "2025 - Atual",
       "empresa": "Prefeitura de Monte Sião",
-      "detalhes": "Acessoria de comunicação interna e externa, mídias, artes e matérias jornalísticas para o site oficial da prefeitura municipal de Monte Sião."
+      "detalhes": "Assessoria de comunicação interna e externa, mídias, artes e matérias jornalísticas para o site oficial."
     },
     {
       "cargo": "Produtor Audiovisual",
       "periodo": "2026 - Atual",
       "empresa": "Empresa própria",
-      "detalhes": "gerenciamento de todas as etapas de projetos de vídeo, áudio ou multimídia — da pré-produção à finalização — garantindo prazos, orçamento e qualidade. Essencial em cinema, TV, publicidade e internet, coordenando equipes, logística, contratações e a captação de recursos, sendo o ponto central de comunicação."
+      "detalhes": "Gerenciamento de todas as etapas de projetos de vídeo, áudio ou multimídia, garantindo prazos, orçamento e qualidade."
     }
   ],
 
@@ -171,17 +209,16 @@
     },
     {
       "titulo": "Ingês Intermediário",
-      "descricao": "Curso de inglês intermediário na plataforma Unova Cursos, focando em speaking e expressões idiomáticas, com a carga horária de 10H ",
+      "descricao": "Curso de inglês intermediário na plataforma Unova Cursos, focando em speaking e expressões idiomáticas, com a carga horária de 10H",
       "imagem": "assets/ing.jpg",
       "link": "https://www.unovacursos.com.br/ava/certificado/MjQ3MzcyNQ=="
     },
     {
       "titulo": "Ciência de Dados",
-      "descricao": "Curo de Ciência de dados disponibilizado pela Fundação Getúlio Vargas com carga horário total de 60H ",
+      "descricao": "Curso de Ciência de dados disponibilizado pela Fundação Getúlio Vargas com carga horário total de 60H",
       "imagem": "assets/fgv.jpg",
       "link": "https://portal.conhecimento.fgv.br/validadorCertificado"
     }
-
   ],
 
   "_SECAO_CONTATO": "++++++++++++++++================== CONTATO & EXTRAS ======================+++++++++++++++",

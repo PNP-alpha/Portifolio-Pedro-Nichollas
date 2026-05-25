@@ -3,89 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus ERP | Acesso Corporativo</title>
-    
+    <title>Nexus ERP | Enterprise Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-    
-    <style>
-        body { 
-            background-color: #0f172a; 
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden;
-        }
-        .font-tech { font-family: 'Orbitron', sans-serif; }
-        
-        /* Efeito de Vidro (Glassmorphism) */
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* Animação de Fundo */
-        .bg-grid {
-            background-image: linear-gradient(to right, #1e293b 1px, transparent 1px),
-                              linear-gradient(to bottom, #1e293b 1px, transparent 1px);
-            background-size: 40px 40px;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="h-screen w-full flex items-center justify-center relative">
-    
-    <div class="absolute inset-0 bg-grid z-0 opacity-40"></div>
-    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-[#0f172a] z-0"></div>
+<body class="bg-[#0b0f19] text-slate-100 font-sans overflow-hidden h-screen w-screen flex">
 
-    <div class="relative z-10 w-full max-w-md p-8 glass-panel rounded-2xl animate-fade-in-up">
-        
-        <div class="text-center mb-10">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600/20 text-blue-400 mb-4 ring-1 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                <i class="fa-solid fa-cube text-2xl"></i>
-            </div>
-            <h1 class="text-3xl text-white font-bold font-tech tracking-wider">NEXUS ERP</h1>
-            <p class="text-slate-400 text-xs uppercase tracking-widest mt-2">Supply Chain Management v1.0</p>
-        </div>
+    <div id="toast-container"></div>
 
-        <form id="loginForm" class="space-y-6">
-            <div>
-                <label class="block text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Corporate ID (Email)</label>
-                <div class="relative group">
-                    <i class="fa-solid fa-user absolute left-3 top-3.5 text-slate-500 group-focus-within:text-blue-400 transition"></i>
-                    <input type="email" id="email" 
-                        class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-lg py-3 pl-10 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" 
-                        placeholder="admin@nexus.com" value="admin@nexus.com">
+    <aside class="w-64 bg-[#0f1422] border-r border-slate-800/80 flex flex-col justify-between h-full z-20">
+        <div>
+            <div class="p-6 border-b border-slate-800 flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-tech text-white text-lg shadow-[0_0_15px_rgba(37,99,235,0.4)]">N</div>
+                    <div>
+                        <h1 class="font-tech text-sm font-bold tracking-widest text-blue-400">NEXUS ERP</h1>
+                        <span class="text-[9px] text-slate-500 font-mono">ENTERPRISE v8.5</span>
+                    </div>
+                </div>
+                
+                <div class="bg-[#090d16] border border-slate-800 rounded-xl p-2">
+                    <label for="serverSelector" class="block text-[9px] text-slate-500 font-mono mb-1 uppercase tracking-wider"><i class="fa-solid fa-server text-blue-500"></i> Servidor Ativo</label>
+                    <select id="serverSelector" onchange="app.switchServer(this.value)" class="w-full bg-transparent text-xs text-slate-200 font-bold outline-none cursor-pointer">
+                        <option value="NEXUS-PRIME" class="bg-[#0f1422]">NEXUS-PRIME (Matriz MG)</option>
+                        <option value="ALPHA-CORE" class="bg-[#0f1422]">ALPHA-CORE (Filial SP)</option>
+                        <option value="SIGMA-DATA" class="bg-[#0f1422]">SIGMA-DATA (Filial RJ)</option>
+                    </select>
                 </div>
             </div>
+
+            <nav class="p-4 space-y-1.5">
+                <button id="nav-dashboard" onclick="app.switchView('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Painel Geral</button>
+                <button id="nav-inventory" onclick="app.switchView('inventory')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-boxes-stacked w-5 text-center"></i> Almoxarifado (WMS)</button>
+                <button id="nav-fleet" onclick="app.switchView('fleet')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-truck-ramp-box w-5 text-center"></i> Gestão de Frota (TMS)</button>
+                <button id="nav-finance" onclick="app.switchView('finance')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-wallet w-5 text-center"></i> Livro Financeiro</button>
+                <button id="nav-crm" onclick="app.switchView('crm')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-address-book w-5 text-center"></i> Clientes (CRM)</button>
+                <button id="nav-hr" onclick="app.switchView('hr')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-users-gear w-5 text-center"></i> Capital Humano</button>
+                <button id="nav-insights" onclick="app.switchView('insights')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-brain w-5 text-center"></i> Intel BI (IA)</button>
+                <button id="nav-audit" onclick="app.switchView('audit')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition duration-200"><i class="fa-solid fa-fingerprint w-5 text-center"></i> Trilha de Auditoria</button>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 bg-[#0c101b]">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-xs text-white border border-slate-700 font-bold">P</div>
+                <div class="truncate">
+                    <div class="text-xs font-bold text-slate-200 truncate" id="userName">Pedro Nichollas</div>
+                    <span class="text-[10px] text-slate-500 font-mono block">NODE TERMINAL SECURE</span>
+                </div>
+            </div>
+            <button onclick="app.logout()" class="w-full bg-slate-800/60 border border-slate-700/80 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-2"><i class="fa-solid fa-power-off"></i> ENCERRAR CONEXÃO</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden h-full">
+        <header class="h-16 bg-[#0f1422] border-b border-slate-800/80 px-8 flex justify-between items-center z-10">
+            <div class="flex items-center gap-3 text-sm text-slate-400">
+                <span class="font-mono text-xs border border-slate-700 px-2.5 py-1 rounded-md bg-[#090d16] text-blue-400" id="clock">00:00:00</span>
+                <span class="text-slate-700">|</span>
+                <span class="text-xs flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[8px] animate-pulse"></i> Cluster Status: <span id="clusterStatusText" class="text-slate-200 font-bold">NEXUS-PRIME</span></span>
+            </div>
+            <button onclick="app.openSearch()" class="bg-slate-800/50 border border-slate-700/60 px-4 py-1.5 rounded-lg text-xs text-slate-400 hover:border-slate-500 transition flex items-center gap-6">Buscar Módulos ou Registros... <span class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded border border-slate-600 text-slate-300">Ctrl + K</span></button>
+        </header>
+
+        <div class="flex-1 p-8 overflow-y-auto bg-[#0b0f19]">
             
-            <div>
-                <label class="block text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Security Key (Senha)</label>
-                <div class="relative group">
-                    <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-500 group-focus-within:text-blue-400 transition"></i>
-                    <input type="password" id="password" 
-                        class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-lg py-3 pl-10 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" 
-                        placeholder="••••••••">
+            <section id="view-dashboard" class="view-section space-y-8">
+                <div>
+                    <h2 class="text-xl font-bold font-tech text-white">CENTRAL DE OPERAÇÕES INTEGRADAS</h2>
+                    <p class="text-xs text-slate-500">Métricas consolidadas e direcionadores rápidos de departamento.</p>
                 </div>
-            </div>
 
-            <button type="submit" 
-                class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-lg transition-all duration-300 shadow-lg shadow-blue-900/30 flex justify-center items-center gap-2 group">
-                <span id="btnText">INICIAR SESSÃO</span>
-                <i id="btnIcon" class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-            </button>
-        </form>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div data-shortcut="inventory" class="p-6 glass rounded-2xl border border-slate-800 hover:border-blue-500/50 transition cursor-pointer group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-slate-400">WMS</span>
+                        </div>
+                        <div class="text-2xl font-bold font-tech text-slate-100" id="kpi-stock">R$ 0,00</div>
+                        <span class="text-xs text-slate-500">Valoração em Almoxarifado</span>
+                    </div>
 
-        <div class="mt-8 pt-6 border-t border-slate-700/50 text-center">
-            <a href="../../index.html" class="text-slate-500 hover:text-white text-xs transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio
-            </a>
+                    <div data-shortcut="finance" class="p-6 glass rounded-2xl border border-slate-800 hover:border-green-500/50 transition cursor-pointer group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 rounded-xl bg-green-500/10 text-green-400 group-hover:bg-green-500 group-hover:text-white transition"><i class="fa-solid fa-money-bill-trend-up text-xl"></i></div>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-slate-400">Financeiro</span>
+                        </div>
+                        <div class="text-2xl font-bold font-tech text-slate-100" id="kpi-rev">R$ 0,00</div>
+                        <span class="text-xs text-slate-500">Receitas Brutas Consolidadas</span>
+                    </div>
+
+                    <div data-shortcut="fleet" class="p-6 glass rounded-2xl border border-slate-800 hover:border-orange-500/50 transition cursor-pointer group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition"><i class="fa-solid fa-truck text-xl"></i></div>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-slate-400">TMS</span>
+                        </div>
+                        <div class="text-2xl font-bold font-tech text-slate-100" id="kpi-fleet">0</div>
+                        <span class="text-xs text-slate-500">Veículos em Trânsito Ativo</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-inventory" class="view-section space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold font-tech text-white">CONTROLE DE ATIVOS & ESTOQUE (WMS)</h2>
+                        <p class="text-xs text-slate-500">Gerenciamento de infraestrutura de rede, servidores e almoxarifado.</p>
+                    </div>
+                    <button onclick="app.openModal('product')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> CADASTRAR NOVO SKU</button>
+                </div>
+                <div class="glass rounded-2xl border border-slate-800 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-800/50 text-slate-400 text-xs font-tech">
+                            <tr>
+                                <th class="px-6 py-3.5">DESCRIÇÃO DA INFRAESTRUTURA</th>
+                                <th class="px-6 py-3.5">LOCALIZAÇÃO</th>
+                                <th class="px-6 py-3.5">VALOR UNITÁRIO</th>
+                                <th class="px-6 py-3.5">SALDO DISPONÍVEL</th>
+                                <th class="px-6 py-3.5 text-right">AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-fleet" class="view-section space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold font-tech text-white">CONTROLE LOGÍSTICO & EMBARQUES (TMS)</h2>
+                    <p class="text-xs text-slate-500">Monitoramento geográfico, telemetria de motoristas, combustível, pedágios e rotas.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <div class="space-y-3 max-h-[500px] overflow-y-auto pr-1" id="fleet-list"></div>
+                    <div class="lg:col-span-2 glass rounded-2xl border border-slate-800 p-2 h-[500px] relative">
+                        <div id="mainFleetMap" class="w-full h-full rounded-xl z-0"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-finance" class="view-section space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold font-tech text-white">LIVRO-CAIXA & FLUXO FINANCEIRO RESTRITO</h2>
+                        <p class="text-xs text-slate-500">Balancetes operacionais, aportes contábeis e fluxo de caixa consolidado.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl flex items-center text-xs gap-2">Saldo Geral: <span id="fin-total" class="font-mono font-bold">R$ 0,00</span></span>
+                        <button onclick="app.openModal('finance')" class="bg-green-600 hover:bg-green-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> LANÇAR TRANSAÇÃO</button>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl border border-slate-800 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-800/50 text-slate-400 text-xs font-tech">
+                            <tr>
+                                <th class="px-6 py-3.5">DATA</th>
+                                <th class="px-6 py-3.5">CATEGORIA</th>
+                                <th class="px-6 py-3.5">HISTÓRICO / ENTE</th>
+                                <th class="px-6 py-3.5">FROTA VINCULADA</th>
+                                <th class="px-6 py-3.5 text-right">VALOR LANÇADO</th>
+                                <th class="px-6 py-3.5 text-right">AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financeTableBody" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-crm" class="view-section space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold font-tech text-white">RELAÇÕES CORPORATIVAS (CRM)</h2>
+                        <p class="text-xs text-slate-500">Ficha cadastral completa, CNPJ, canais de contato e limites de crédito empresarial.</p>
+                    </div>
+                    <button onclick="app.openModal('crm')" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> NOVO CLIENTE</button>
+                </div>
+                <div class="glass rounded-2xl border border-slate-800 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-800/50 text-slate-400 text-xs font-tech">
+                            <tr>
+                                <th class="px-6 py-3.5">RAZÃO SOCIAL / CNPJ</th>
+                                <th class="px-6 py-3.5">CONTATO MASTER</th>
+                                <th class="px-6 py-3.5">TELEFONE / EMAIL</th>
+                                <th class="px-6 py-3.5">ENDEREÇO FISCAL</th>
+                                <th class="px-6 py-3.5 text-right">LIMITE CRÉDITO</th>
+                                <th class="px-6 py-3.5 text-right">AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crmTableBody" class="text-xs"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-hr" class="view-section space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold font-tech text-white">CAPITAL HUMANO & FOLHA DE PAGAMENTO</h2>
+                        <p class="text-xs text-slate-500">Matrícula funcional, CPF, alocação salarial de departamentos e admissões.</p>
+                    </div>
+                    <button onclick="app.openModal('hr')" class="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> REGISTRAR COLABORADOR</button>
+                </div>
+                <div class="glass rounded-2xl border border-slate-800 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-800/50 text-slate-400 text-xs font-tech">
+                            <tr>
+                                <th class="px-6 py-3.5">COLABORADOR / CPF</th>
+                                <th class="px-6 py-3.5">DEPARTAMENTO / CARGO</th>
+                                <th class="px-6 py-3.5">SALÁRIO BRUTO</th>
+                                <th class="px-6 py-3.5">DATA ADMISSÃO</th>
+                                <th class="px-6 py-3.5 text-right">AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hrTableBody" class="text-xs"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-insights" class="view-section space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold font-tech text-white">NEXUS BI & EXECUTIVE INTEL</h2>
+                    <p class="text-xs text-slate-500">Métricas analíticas de alta densidade geradas dinamicamente com base nas operações do servidor ativo.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                        <span class="text-[10px] font-mono text-slate-500 block">MARGEM LÍQUIDA</span>
+                        <div class="text-lg font-bold text-emerald-400" id="bi-margin">0.0%</div>
+                    </div>
+                    <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                        <span class="text-[10px] font-mono text-slate-500 block">CUSTOS LOGÍSTICOS (TMS)</span>
+                        <div class="text-lg font-bold text-rose-400" id="bi-log-costs">R$ 0,00</div>
+                    </div>
+                    <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                        <span class="text-[10px] font-mono text-slate-500 block">CUSTO DE FOLHA DE PGTO</span>
+                        <div class="text-lg font-bold text-indigo-400" id="bi-hr-costs">R$ 0,00</div>
+                    </div>
+                    <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                        <span class="text-[10px] font-mono text-slate-500 block">EFICIÊNCIA DE ENTREGA</span>
+                        <div class="text-lg font-bold text-amber-400" id="bi-delivery-rate">0%</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[340px]">
+                    <div class="glass rounded-2xl p-5 border border-slate-800 flex flex-col justify-between">
+                        <h3 class="text-xs font-bold font-tech text-slate-400">DEMONSTRATIVO DE RESULTADOS (DRE)</h3>
+                        <div class="flex-1 relative mt-2"><canvas id="chartDoughnut"></canvas></div>
+                    </div>
+                    <div class="lg:col-span-2 glass rounded-2xl p-5 border border-slate-800 flex flex-col justify-between">
+                        <h3 class="text-xs font-bold font-tech text-slate-400">RELATÓRIO DE RECOMENDAÇÕES PREDITIVAS (IA)</h3>
+                        <div id="ai-text" class="text-xs text-slate-300 leading-relaxed bg-[#090d16] p-4 rounded-xl border border-slate-800 h-full overflow-y-auto mt-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-audit" class="view-section space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold font-tech text-white">REGISTROS DE AUDITORIA INTERNA (LOGS SECURE)</h2>
+                    <p class="text-xs text-slate-500">Histórico de ações rastreáveis de segurança, conexões de cluster e modificações de registros.</p>
+                </div>
+                <div class="glass rounded-2xl border border-slate-800 overflow-hidden max-h-[450px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-800/50 text-slate-400 text-xs font-tech sticky top-0 z-10">
+                            <tr>
+                                <th class="px-4 py-3">CARIMBO DE DATA/HORA</th>
+                                <th class="px-4 py-3">USUÁRIO AUTOR</th>
+                                <th class="px-4 py-3">AÇÃO EXECUTADA</th>
+                                <th class="px-4 py-3">DETALHES TÉCNICOS DA OPERAÇÃO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-        
-        <div id="statusMsg" class="hidden mt-4 p-3 text-center text-sm rounded border"></div>
+    </main>
+
+    <div id="modal-product" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#111625] border border-slate-800 p-6 rounded-2xl w-full max-w-md">
+            <h3 class="font-tech text-sm text-blue-400 mb-4">REGISTRAR NOVO SKU NO INVENTÁRIO</h3>
+            <form onsubmit="app.saveProduct(event)" class="space-y-4 text-xs">
+                <div><label for="prodName" class="block text-slate-400 mb-1">Nome do Equipamento/Insumo</label><input type="text" id="prodName" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label for="prodLoc" class="block text-slate-400 mb-1">Localização (Rua/Prateleira)</label><input type="text" id="prodLoc" required placeholder="EX: A-01" class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                    <div><label for="prodStock" class="block text-slate-400 mb-1">Quantidade de Entrada</label><input type="number" id="prodStock" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                </div>
+                <div><label for="prodPrice" class="block text-slate-400 mb-1">Valor Unitário de Compra (R$)</label><input type="number" step="0.01" id="prodPrice" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                <div class="flex gap-3 pt-2"><button type="button" onclick="app.closeModal('product')" class="flex-1 bg-slate-800 text-white p-2.5 rounded-lg hover:bg-slate-700 transition">Cancelar</button><button type="submit" class="flex-1 bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-500 transition">Catalogar Ativo</button></div>
+            </form>
+        </div>
     </div>
 
-    <script src="auth.js"></script>
+    <div id="modal-finance" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#111625] border border-slate-800 p-6 rounded-2xl w-full max-w-md">
+            <h3 class="font-tech text-sm text-green-400 mb-4">REGISTRAR ENTRADA/SAÍDA FINANCEIRA</h3>
+            <form onsubmit="app.saveFinance(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label for="finType" class="block text-slate-400 mb-1">Natureza Operacional</label><select id="finType" class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"><option value="Venda">Venda (Receita)</option><option value="Compra">Compra (Ativos)</option><option value="Operacional">Operacional (Custo)</option></select></div>
+                    <div><label for="finVal" class="block text-slate-400 mb-1">Valor do Lançamento (R$)</label><input type="number" step="0.01" id="finVal" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                </div>
+                <div><label for="finDesc" class="block text-slate-400 mb-1">Descrição / Histórico Contábil</label><input type="text" id="finDesc" required placeholder="Ex: Venda de Roteadores / Manutenção" class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                <div><label for="finClient" class="block text-slate-400 mb-1">Cliente Solicitante (CRM)</label><select id="finClient" class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></select></div>
+                <div><label substitution for="finVehicle" class="block text-slate-400 mb-1">Vincular Ativo de Frota (Disparar TMS Logístico)</label><select id="finVehicle" class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></select></div>
+                <div class="flex gap-3 pt-2"><button type="button" onclick="app.closeModal('finance')" class="flex-1 bg-slate-800 text-white p-2.5 rounded-lg hover:bg-slate-700 transition">Cancelar</button><button type="submit" class="flex-1 bg-green-600 text-white p-2.5 rounded-lg hover:bg-green-500 transition">Lançar e Sincronizar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-crm" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#111625] border border-slate-800 p-6 rounded-2xl w-full max-w-md">
+            <h3 class="font-tech text-sm text-yellow-500 mb-4">CADASTRAR CONTA CORPORATIVA (CRM)</h3>
+            <form onsubmit="app.saveCRM(event)" class="space-y-4 text-xs">
+                <div><label for="crmCompany" class="block text-slate-400 mb-1">Razão Social / Nome da Empresa</label><input type="text" id="crmCompany" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label for="crmCnpj" class="block text-slate-400 mb-1">CNPJ Comercial</label><input type="text" id="crmCnpj" placeholder="00.000.000/0001-00" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                    <div><label for="crmCredit" class="block text-slate-400 mb-1">Limite de Crédito (R$)</label><input type="number" id="crmCredit" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label for="crmContact" class="block text-slate-400 mb-1">Ponto de Contato Master</label><input type="text" id="crmContact" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                    <div><label for="crmPhone" class="block text-slate-400 mb-1">Telefone Direto</label><input type="text" id="crmPhone" placeholder="(00) 00000-0000" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                </div>
+                <div><label for="crmEmail" class="block text-slate-400 mb-1">Email Comercial</label><input type="email" id="crmEmail" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                <div><label for="crmAddress" class="block text-slate-400 mb-1">Endereço Fiscal / Cidade</label><input type="text" id="crmAddress" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                <div class="flex gap-3 pt-2"><button type="button" onclick="app.closeModal('crm')" class="flex-1 bg-slate-800 text-white p-2.5 rounded-lg hover:bg-slate-700 transition">Cancelar</button><button type="submit" class="flex-1 bg-yellow-600 text-white p-2.5 rounded-lg hover:bg-yellow-500 transition">Salvar Lead</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-hr" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#111625] border border-slate-800 p-6 rounded-2xl w-full max-w-md">
+            <h3 class="font-tech text-sm text-pink-500 mb-4">MATRICULAR NOVO COLABORADOR</h3>
+            <form onsubmit="app.saveHR(event)" class="space-y-4 text-xs">
+                <div><label for="hrName" class="block text-slate-400 mb-1">Nome Completo</label><input type="text" id="hrName" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label for="hrCpf" class="block text-slate-400 mb-1">CPF Individual</label><input type="text" id="hrCpf" placeholder="000.000.000-00" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                    <div><label for="hrSalary" class="block text-slate-400 mb-1">Salário Inicial (R$)</label><input type="number" id="hrSalary" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label for="hrRole" class="block text-slate-400 mb-1">Cargo / Função</label><input type="text" id="hrRole" required class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"></div>
+                    <div><label for="hrDept" class="block text-slate-400 mb-1">Departamento</label><select id="hrDept" class="w-full bg-[#090d16] border border-slate-800 p-2.5 rounded-lg text-white outline-none"><option value="Logística">Logística / Frota</option><option value="Engenharia">Engenharia / Redes</option><option value="Financeiro">Administração / Finanças</option></select></div>
+                </div>
+                <div class="flex gap-3 pt-2"><button type="button" onclick="app.closeModal('hr')" class="flex-1 bg-slate-800 text-white p-2.5 rounded-lg hover:bg-slate-700 transition">Cancelar</button><button type="submit" class="flex-1 bg-pink-600 text-white p-2.5 rounded-lg hover:bg-pink-500 transition">Assinar Admissão</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-search" class="modal fixed inset-0 bg-black/80 flex items-start justify-center pt-20 p-4">
+        <div class="bg-[#111625] border border-slate-600 w-full max-w-lg rounded-xl overflow-hidden shadow-2xl">
+            <div class="border-b border-slate-800 p-4 flex items-center gap-3">
+                <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+                <label for="searchInput" class="sr-only">Buscar Módulos</label>
+                <input id="searchInput" type="text" placeholder="Digite o nome do módulo para pular rapidamente..." class="bg-transparent w-full text-white outline-none text-xs">
+                <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer" onclick="app.closeModal('search')">ESC</span>
+            </div>
+            <div id="searchResults" class="max-h-60 overflow-y-auto p-2 bg-[#090d16]"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>

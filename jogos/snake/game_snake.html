@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Snake | PNP Systems</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="snake_style.css">
+</head>
+<body>
+
+    <a href="../../index.html" class="universal-exit-btn">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> SISTEMA PRINCIPAL
+    </a>
+
+    <div id="start-screen" class="screen-overlay">
+        <div class="terminal-window">
+            <h1 class="glitch-title">CYBER SNAKE v5.0</h1>
+            <p class="subtitle">SISTEMA DE INVASÃO DE NÚCLEO</p>
+            
+            <div class="leaderboard-container">
+                <h3><i class="fa-solid fa-database"></i> ÚLTIMOS 10 RESULTADOS</h3>
+                <table id="scores-table">
+                    <thead>
+                        <tr>
+                            <th>INDEX</th>
+                            <th>DATA/HORA</th>
+                            <th>SCORE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scores-body">
+                        </tbody>
+                </table>
+            </div>
+            
+            <button id="btn-start" class="cyber-start-btn">
+                <span class="btn-glow"></span>
+                INICIAR HACKING
+            </button>
+        </div>
+    </div>
+
+    <div class="hud">
+        <div class="score-board">
+            SCORE: <span id="score">0</span>
+        </div>
+        <div class="instructions">Use [ W A S D ] ou Setas | [ESC] Sair</div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="snake_script.js"></script>
+</body>
+</html>

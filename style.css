@@ -1,9 +1,6 @@
 /* ++++++++++++++++================== VARIÁVEIS & RESET ======================+++++++++++++++ */
 :root {
-    /* Esta variável é alterada pelo JS/Color Picker */
     --neon-color: #00ff88; 
-    
-    /* Paleta Base */
     --bg-color: #0a0a0a;
     --card-bg: #161616;
     --text-color: #e0e0e0;
@@ -19,11 +16,10 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: 'Roboto', sans-serif;
-    overflow-x: hidden; /* Evita rolagem lateral */
+    overflow-x: hidden; 
 }
 
-/* Tipografia Futurista */
-h1, h2, h3, .logo, .ticker-label, .radio-screen, .picker-title {
+h1, h2, h3, .logo, .ticker-label, .radio-screen, .picker-title, .gx-title, .custom-tooltip-container::after, .game-text {
     font-family: 'Orbitron', sans-serif;
 }
 
@@ -85,7 +81,17 @@ a {
     padding: 0 3rem;
 }
 
-/* ++++++++++++++++================== NAVBAR & HUD ======================+++++++++++++++ */
+.ticker-link {
+    color: inherit;
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+.ticker-link:hover {
+    text-shadow: 0 0 10px var(--neon-color);
+    color: #fff;
+}
+
+/* ++++++++++++++++================== NAVBAR ======================+++++++++++++++ */
 .navbar {
     position: fixed;
     top: 35px;
@@ -95,6 +101,7 @@ a {
     justify-content: space-between;
     align-items: center;
     background: rgba(10, 10, 10, 0.95);
+    -webkit-backdrop-filter: blur(10px); 
     backdrop-filter: blur(10px);
     z-index: 1000;
     border-bottom: 1px solid #333;
@@ -114,7 +121,28 @@ a {
     margin-right: 15px;
 }
 
-/* --- RÁDIO STYLE --- */
+.menu { 
+    display: flex; 
+    list-style: none; 
+    gap: 20px; 
+}
+
+.nav-link {
+    font-weight: bold; 
+    text-transform: uppercase; 
+    font-size: 0.85rem; 
+    transition: all 0.3s ease;
+    padding: 5px 10px; 
+    border-radius: 4px;
+}
+
+.nav-link:hover {
+    color: var(--neon-color); 
+    background: rgba(255, 255, 255, 0.05);
+    text-shadow: 0 0 10px var(--neon-color);
+}
+
+/* ++++++++++++++++================== RÁDIO (PC) ======================+++++++++++++++ */
 .radio-panel {
     display: flex;
     align-items: center;
@@ -127,37 +155,38 @@ a {
 }
 
 .radio-screen {
-    background: #000;
-    border: 1px solid #222;
-    padding: 5px 15px;
-    border-radius: 2px;
-    width: auto;
-    min-width: 150px;
-    max-width: 400px;
+    min-width: 140px; 
+    padding: 2px 10px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: width 0.3s ease;
+    overflow: hidden; 
 }
 
-#radio-text {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.65rem;
-    color: #555;
-    white-space: nowrap;
-    overflow: hidden;
+.radio-select-custom {
+    background: transparent;
+    border: none;
+    color: var(--neon-color);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem; 
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    text-overflow: ellipsis; 
+    text-transform: uppercase;
+}
+
+.radio-select-custom option {
+    background: #000;
+    color: var(--neon-color);
 }
 
 .status-led {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     background: #333;
     border-radius: 50%;
-}
-
-.radio-panel.active #radio-text {
-    color: var(--neon-color);
-    text-shadow: 0 0 5px var(--neon-color);
+    margin-right: 8px;
+    transition: all 0.3s ease;
 }
 
 .radio-panel.active .status-led {
@@ -166,10 +195,36 @@ a {
     animation: blinker 2s infinite;
 }
 
-/* Botões Mecânicos */
 .radio-keys {
     display: flex;
     gap: 8px;
+}
+
+.vol-wrapper input[type=range] {
+    width: 60px;
+    height: 4px;
+    background: #222;
+    appearance: none;
+    border-radius: 2px;
+}
+
+.vol-wrapper input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px;
+    height: 15px;
+    background: #444;
+    border: 1px solid #555;
+    cursor: pointer;
+}
+
+/* ++++++++++++++++================== BOTÕES MECÂNICOS & TOOLS ======================+++++++++++++++ */
+.tools-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+    padding-left: 15px;
+    border-left: 1px solid #333;
 }
 
 .mech-btn {
@@ -182,12 +237,9 @@ a {
     cursor: pointer;
     padding: 0;
     box-shadow: 0 4px 0 #111, 0 5px 5px rgba(0,0,0,0.5);
-    transition: 0.1s;
-}
-
-.mech-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 0 0 #111, inset 0 2px 5px rgba(0,0,0,0.8);
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-face {
@@ -201,50 +253,95 @@ a {
     border-top: 1px solid #444;
     color: #888;
     font-size: 0.8rem;
+    transition: all 0.3s ease;
 }
 
-.play-btn:hover .btn-face { color: var(--neon-color); text-shadow: 0 0 5px var(--neon-color); }
-.stop-btn:hover .btn-face { color: var(--neon-color); text-shadow: 0 0 5px var(--neon-color);}
-
-/* Volume */
-.vol-wrapper input[type=range] {
-    width: 60px;
-    height: 4px;
-    background: #222;
-    appearance: none;
-    border-radius: 2px;
-}
-.vol-wrapper input[type=range]::-webkit-slider-thumb {
-    appearance: none;
-    width: 10px;
-    height: 15px;
-    background: #444;
-    border: 1px solid #555;
-    cursor: pointer;
-}
-
-/* ++++++++++++++++================== TOOLS & EXTRAS ======================+++++++++++++++ */
-.tools-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: 15px;
-    padding-left: 15px;
-    border-left: 1px solid #333;
-}
-
-.tool-btn {
-    width: 35px;
-    height: 35px;
-    text-decoration: none;
-    display: inline-block;
-}
+.tool-btn, .settings-btn { width: 35px; height: 35px; }
 .tool-btn .btn-face { font-size: 1.1rem; }
-
-/* Configurações de Tema */
-.settings-panel { position: relative; }
-.settings-btn { width: 35px; height: 35px; }
 .settings-btn .btn-face { font-size: 1.2rem; }
+
+.mech-btn .btn-face i {
+    color: var(--neon-color);
+    filter: drop-shadow(0 0 3px var(--neon-color)); 
+    transition: all 0.3s ease;
+}
+
+/* Efeito Hover Geral nos Botões Mecânicos */
+.mech-btn:hover {
+    border-color: var(--neon-color);
+    box-shadow: 0 4px 0 #111, 0 0 15px var(--neon-color), 0 0 30px var(--neon-color), inset 0 0 10px rgba(0,0,0,0.5);
+    transform: translateY(-2px);
+    z-index: 10;
+}
+
+.mech-btn:hover .btn-face {
+    color: var(--neon-color);
+    text-shadow: 0 0 8px var(--neon-color);
+    background: linear-gradient(145deg, #1a1a1a, #000);
+    border-color: var(--neon-color);
+}
+
+.mech-btn:hover .btn-face i {
+    filter: drop-shadow(0 0 10px var(--neon-color));
+    transform: scale(1.15);
+}
+
+.mech-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #111, inset 0 2px 5px rgba(0,0,0,0.8);
+}
+
+/* Tooltip Cyberpunk */
+.custom-tooltip-container { position: relative; }
+
+.custom-tooltip-container::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -40px; 
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: rgba(10, 10, 10, 0.95);
+    color: var(--neon-color);
+    border: 1px solid var(--neon-color);
+    padding: 6px 12px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 2500;
+}
+
+.custom-tooltip-container::before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent var(--neon-color) transparent;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 2500;
+}
+
+.custom-tooltip-container:hover::after,
+.custom-tooltip-container:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+.custom-tooltip-container:hover::after {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Painel de Temas */
+.settings-panel { position: relative; }
 
 .color-picker-tooltip {
     position: absolute;
@@ -272,14 +369,17 @@ a {
     font-size: 0.7rem; color: var(--neon-color);
     border-bottom: 1px solid #333; padding-bottom: 5px; text-align: center;
 }
+
 .colors-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+
 .color-btn {
     width: 25px; height: 25px; border-radius: 50%; cursor: pointer;
-    border: 2px solid #333; transition: 0.2s;
+    border: 2px solid #333; transition: all 0.2s ease;
 }
+
 .color-btn:hover { transform: scale(1.2); border-color: #fff; box-shadow: 0 0 10px currentColor; }
 
-/* Contador de Visitas */
+/* Contador */
 .visitor-counter {
     display: flex; align-items: center; gap: 5px;
     background: #000; border: 1px solid #333; padding: 0 10px; height: 35px;
@@ -288,18 +388,139 @@ a {
 }
 .visit-icon { font-size: 0.9rem; opacity: 0.7; }
 
-/* ++++++++++++++++================== MENU DIREITO ======================+++++++++++++++ */
-.menu { display: flex; list-style: none; gap: 20px; }
-.nav-link {
-    font-weight: bold; text-transform: uppercase; font-size: 0.85rem; transition: 0.3s;
-    padding: 5px 10px; border-radius: 4px;
-}
-.nav-link:hover {
-    color: var(--neon-color); background: rgba(255, 255, 255, 0.05);
-    text-shadow: 0 0 10px var(--neon-color);
+/* ++++++++++++++++================== SIDEBAR JOGOS (PC EXPANSÍVEL) ======================+++++++++++++++ */
+.gx-sidebar {
+    position: fixed;
+    left: 0;
+    top: 100px; 
+    height: calc(100vh - 100px); 
+    width: 70px;
+    background: #020202;
+    border-right: 1px solid #222;
+    border-top: 1px solid #222; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    z-index: 900; 
+    box-shadow: 5px 0 20px rgba(0,0,0,0.8);
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+    overflow: hidden;
 }
 
-/* ++++++++++++++++================== HERO & PERFIL ======================+++++++++++++++ */
+.gx-sidebar:hover {
+    width: 220px; 
+    align-items: flex-start;
+    padding: 20px 15px;
+}
+
+.gx-logo {
+    color: var(--neon-color);
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 0 8px var(--neon-color));
+    animation: pulseGx 3s infinite;
+    align-self: center; 
+}
+
+.gx-title {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    color: var(--neon-color); 
+    font-weight: 900;
+    font-size: 0.9rem;
+    letter-spacing: 6px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px var(--neon-color); 
+    opacity: 0.8;
+    border-left: 2px solid #222; 
+    padding-left: 10px;
+    align-self: center;
+    transition: opacity 0.2s ease, visibility 0.2s ease, height 0.2s ease, margin 0.2s ease;
+}
+
+.gx-sidebar:hover .gx-title {
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    margin-bottom: 0;
+    padding: 0;
+    border: none;
+}
+
+#games-container-pc {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.game-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; 
+    width: 100%;
+    box-sizing: border-box; 
+    padding: 12px 12px 12px 20px; 
+    background: rgba(10, 10, 10, 0.6);
+    border-left: 3px solid transparent; 
+    border-radius: 4px;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    gap: 0; 
+}
+
+.gx-sidebar:hover .game-link {
+    padding: 12px 15px; 
+    gap: 15px; 
+}
+
+.game-link i {
+    color: var(--neon-color);
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0; 
+    width: 30px; 
+    text-align: center; 
+}
+
+.game-text {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--text-color);
+    opacity: 0;
+    visibility: hidden;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.gx-sidebar:hover .game-text {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0.15s; 
+}
+
+.game-link:hover {
+    border-left: 3px solid var(--neon-color);
+    background: rgba(20, 20, 20, 0.9);
+    color: var(--neon-color);
+    box-shadow: inset 15px 0 20px -15px var(--neon-color);
+}
+
+.game-link:hover .game-text {
+    color: var(--neon-color);
+    text-shadow: 0 0 8px var(--neon-color);
+}
+
+.game-link:hover i {
+    filter: drop-shadow(0 0 10px var(--neon-color));
+    transform: scale(1.1);
+}
+
+/* ++++++++++++++++================== HERO & PERFIL (PLAYER CENTRAL FLUIDO) ======================+++++++++++++++ */
 .hero {
     min-height: 100vh; padding-top: 100px;
     display: flex; justify-content: center; align-items: center; text-align: center;
@@ -307,23 +528,33 @@ a {
 }
 
 .profile-container {
-    position: relative; width: 280px; height: 280px; margin: 0 auto 30px;
-    display: flex; justify-content: center; align-items: center; z-index: 1;
+    position: relative; 
+    width: 280px; 
+    height: 280px; 
+    margin: 0 auto 30px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1;
+    transition: transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.profile-container.beat-kick {
+    transform: scale(1.05);
 }
 
 .profile-pic {
     width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333;
     object-fit: cover; position: relative; z-index: 10; background: #000;
-    transition: 0.1s;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Efeito Beat */
-.profile-pic.beat-kick {
-    transform: scale(1.03); border-color: var(--neon-color);
-    box-shadow: 0 0 35px var(--neon-color);
+.profile-container.music-playing .profile-pic {
+    border-color: var(--neon-color);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    animation: spinDisc 20s linear infinite; 
 }
 
-/* Spinner e Ondas */
 .spinner-ring {
     position: absolute; width: 110%; height: 110%; border-radius: 50%;
     border: 2px solid transparent; border-top-color: var(--neon-color);
@@ -332,10 +563,19 @@ a {
 }
 .profile-container.music-playing .spinner-ring { opacity: 1; animation: spinNeon 2s linear infinite; }
 
+/* Ondas estilo Superfície de Água Real */
 .energy-wave {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    border-radius: 50%; border: 2px solid var(--neon-color);
-    z-index: 1; opacity: 0; pointer-events: none; animation: waveOut 1.5s ease-out forwards;
+    position: absolute; 
+    top: 0; left: 0; width: 100%; height: 100%;
+    border-radius: 50%; 
+    border: 1.5px solid var(--neon-color);
+    z-index: 1; 
+    opacity: 0; 
+    pointer-events: none; 
+    box-shadow: 
+        0 0 15px var(--neon-color),
+        inset 0 0 15px var(--neon-color);
+    animation: waterRipple 2s cubic-bezier(0.1, 0.4, 0.2, 1) forwards;
 }
 
 .role-text {
@@ -348,7 +588,7 @@ a {
 }
 .blink { animation: blinker 1s linear infinite; }
 
-/* ++++++++++++++++================== SEÇÕES DE CONTEÚDO ======================+++++++++++++++ */
+/* ++++++++++++++++================== SEÇÕES GERAIS & CARDS ======================+++++++++++++++ */
 .section { padding: 80px 10%; border-top: 1px solid #222; }
 .section-title {
     font-size: 2rem; margin-bottom: 50px; text-align: center;
@@ -360,10 +600,9 @@ a {
     gap: 30px; width: 100%;
 }
 
-/* Cards */
 .card {
     background: var(--card-bg); padding: 30px; border-radius: 15px;
-    border: 1px solid #333; transition: 0.3s;
+    border: 1px solid #333; transition: all 0.3s ease;
     display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;
 }
 .card:hover {
@@ -381,7 +620,7 @@ a {
 .btn-project {
     display: inline-block; text-align: center; padding: 10px 20px;
     background: transparent; border: 1px solid var(--neon-color);
-    color: var(--neon-color); border-radius: 5px; transition: 0.3s;
+    color: var(--neon-color); border-radius: 5px; transition: all 0.3s ease;
     font-weight: bold; font-size: 0.9rem;
 }
 .btn-project:hover { background: var(--neon-color); color: #000; }
@@ -400,6 +639,7 @@ a {
     font-size: 0.85rem; color: #888; display: block; margin-bottom: 8px; font-family: 'Orbitron', sans-serif;
 }
 
+/* Contato & Footer */
 .contact-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
 .contact-container .nav-link { border: 1px solid var(--neon-color); padding: 15px 30px; font-size: 1rem; }
 
@@ -411,6 +651,7 @@ footer {
 /* ++++++++++++++++================== MODAL & MATRIX ======================+++++++++++++++ */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    -webkit-backdrop-filter: blur(5px);
     background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
     z-index: 3000; display: none; justify-content: center; align-items: center;
     opacity: 0; transition: opacity 0.3s;
@@ -443,7 +684,7 @@ footer {
 
 .submit-btn {
     width: 100%; padding: 12px; background: var(--neon-color); color: #000;
-    font-weight: bold; border: none; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.3s;
+    font-weight: bold; border: none; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: all 0.3s ease;
 }
 .submit-btn:hover { box-shadow: 0 0 15px var(--neon-color); letter-spacing: 2px; }
 
@@ -452,300 +693,136 @@ footer {
     z-index: 9999; display: none; background: black;
 }
 
-/* ++++++++++++++++================== KEYFRAMES & MOBILE ======================+++++++++++++++ */
+/* ++++++++++++++++================== KEYFRAMES ======================+++++++++++++++ */
 @keyframes ticker { 0% { transform: translate3d(100%, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
 @keyframes blinker { 50% { opacity: 0; } }
 @keyframes spinNeon { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes waveOut {
-    0% { transform: scale(0.9); opacity: 0.8; border-width: 5px; }
-    100% { transform: scale(2.0); opacity: 0; border-width: 0px; }
-}
+@keyframes pulseGx { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(1); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseNeon { 0% { box-shadow: 0 0 15px var(--neon-color); } 50% { box-shadow: 0 0 30px var(--neon-color); } 100% { box-shadow: 0 0 15px var(--neon-color); } }
+@keyframes spinDisc { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes spinContido { 0% { transform: scale(1.08) rotate(0deg); opacity: 0.8; } 100% { transform: scale(1.08) rotate(360deg); opacity: 0; } }
 
-@media (max-width: 900px) {
-    .navbar { flex-direction: column; height: auto; padding: 15px; }
-    .left-section { width: 100%; justify-content: space-between; margin-bottom: 15px; }
-    .menu { flex-wrap: wrap; justify-content: center; gap: 10px; }
-    .nav-link { font-size: 0.75rem; padding: 5px 8px; }
-    .section { padding: 60px 5%; }
-}
-
-/* EFEITO GLOW BOTÕES */
-.tools-group .mech-btn:hover,
-.settings-panel .mech-btn:hover {
-    border-color: var(--neon-color);
-    box-shadow: 0 4px 0 #111, 0 0 15px var(--neon-color), 0 0 30px var(--neon-color), inset 0 0 10px rgba(0,0,0,0.5);
-    transform: translateY(-2px);
-    z-index: 10;
-}
-.tools-group .mech-btn:hover .btn-face,
-.settings-panel .mech-btn:hover .btn-face {
-    color: var(--neon-color);
-    text-shadow: 0 0 8px var(--neon-color);
-    background: linear-gradient(145deg, #1a1a1a, #000);
-    border-color: var(--neon-color);
-}
-.tools-group .mech-btn:active,
-.settings-panel .mech-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 0 0 #111, 0 0 10px var(--neon-color);
-}
-/* ++++++++++++++++================== GX SIDEBAR (UPDATED) ======================+++++++++++++++ */
-.gx-sidebar {
-    position: fixed;
-    left: 0;
-    
-    /* MUDANÇA AQUI: Empurra a barra para baixo para não cobrir o Logo/News */
-    top: 100px; 
-    
-    /* MUDANÇA AQUI: Calcula a altura restante para não estourar a tela embaixo */
-    height: calc(100vh - 100px); 
-    
-    width: 70px;
-    background: #020202;
-    border-right: 1px solid #222;
-    border-top: 1px solid #222; /* Adiciona uma borda no topo para acabamento */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0;
-    z-index: 900; /* Reduzi um pouco para garantir que menus suspensos passem por cima se necessário */
-    box-shadow: 5px 0 20px rgba(0,0,0,0.8);
-    transition: width 0.3s ease;
-}
-
-/* Logo do Controle no Topo */
-.gx-logo {
-    color: var(--neon-color);
-    font-size: 1.8rem;
-    margin-bottom: 30px;
-    filter: drop-shadow(0 0 8px var(--neon-color));
-    animation: pulseGx 3s infinite;
-}
-
-/* Título Vertical "GAMES" */
-.gx-title {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: rotate(180deg);
-    color: var(--neon-color); /* Segue o tema */
-    font-weight: 900;
-    font-size: 0.9rem;
-    letter-spacing: 6px;
-    margin-bottom: 30px;
-    font-family: 'Orbitron';
-    text-shadow: 0 0 10px var(--neon-color); /* Brilho neon */
-    opacity: 0.8;
-    border-left: 2px solid #222; /* Linha separadora estética */
-    padding-left: 10px;
-}
-
-.gx-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
-}
-
-/* Itens / Ícones dos Jogos */
-.gx-item {
-    position: relative;
-    width: 100%;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--neon-color); /* Cor do tema */
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    text-decoration: none;
-    opacity: 0.4; /* Meio apagado quando não selecionado */
-}
-
-/* Efeito Hover (Ao passar o mouse) */
-.gx-item:hover {
-    opacity: 1; /* Aceso total */
-    background: rgba(255, 255, 255, 0.03);
-    text-shadow: 0 0 15px var(--neon-color);
-}
-
-.gx-item:hover i {
-    transform: scale(1.3); /* Ícone cresce */
-    filter: drop-shadow(0 0 5px var(--neon-color));
-}
-
-/* Tooltip (Nome do Jogo que aparece ao lado) */
-.gx-tooltip {
-    position: absolute;
-    left: 80px; /* Joga para o lado da barra */
-    background: rgba(10, 10, 10, 0.95);
-    border: 1px solid var(--neon-color);
-    color: var(--neon-color);
-    padding: 8px 15px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    font-family: 'Orbitron';
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(-20px);
-    transition: 0.3s;
-    pointer-events: none;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    z-index: 10000;
-}
-
-/* Triângulo do Tooltip */
-.gx-tooltip::before {
-    content: '';
-    position: absolute;
-    left: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: transparent var(--neon-color) transparent transparent;
-}
-
-.gx-item:hover .gx-tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(0);
-}
-
-.gx-bottom {
-    margin-top: auto;
-    width: 100%;
-}
-
-/* Animação do Logo */
-@keyframes pulseGx {
-    0% { opacity: 0.6; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.1); }
-    100% { opacity: 0.6; transform: scale(1); }
-}
-
-/* Mobile: Esconder a barra para não atrapalhar */
-@media (max-width: 900px) {
-    .gx-sidebar { display: none; }
-    body { padding-left: 0; }
-}
-
-/* =========================================================
-   📱 MODO MOBILE BLINDADO (Anti-Tremor e Empilhamento)
-   ========================================================= */
-@media (max-width: 900px) {
-    
-    /* 1. TRAVA GLOBAL DE EIXO X (Mata o tremor lateral da onda e da rádio) */
-    html, body {
-        overflow-x: hidden !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        position: relative !important;
-        padding-left: 0 !important; /* Remove o espaço da barra GX */
+/* Ondulação Orgânica de Água */
+@keyframes waterRipple {
+    0% {
+        transform: scale(0.95);
+        border-radius: 50%;
+        opacity: 0.9;
+        filter: blur(0px);
     }
-
-    /* 2. OCULTA ELEMENTOS PERIGOSOS NO MOBILE */
-    .gx-sidebar { display: none !important; }
-    
-    .energy-wave { 
-        display: none !important; 
-        animation: none !important; 
+    30% {
+        border-radius: 48% 52% 49% 51%;
+        opacity: 0.7;
     }
+    60% {
+        border-radius: 51% 49% 52% 48%;
+        filter: blur(1px);
+    }
+    100% {
+        transform: scale(2.6); 
+        border-radius: 50%;
+        opacity: 0;
+        box-shadow: 0 0 40px rgba(0,0,0,0), inset 0 0 40px rgba(0,0,0,0);
+        border-width: 0.5px;
+        border-color: transparent;
+        filter: blur(4px);
+    }
+}
 
-    /* 3. DESENGARRAFAMENTO DO TOPO (Empilha tudo verticalmente) */
+/* ++++++++++++++++================== MODO MOBILE (MAX-WIDTH: 900PX) ======================+++++++++++++++ */
+.menu-toggle-btn, .mobile-sidebar, .mobile-tools-fab, .fab-radio-btn { display: none; }
+
+@media (max-width: 900px) {
+    html, body { overflow-x: hidden !important; width: 100vw !important; max-width: 100vw !important; position: relative !important; padding-left: 0 !important; }
+    
+    .gx-sidebar, .tools-group, .radio-panel, #menu-dinamico { display: none !important; }
+
+    /* Header Mobile */
     .navbar {
-        flex-direction: column !important;
-        height: auto !important;
-        padding: 15px 10px !important;
-        gap: 15px !important;
+        display: flex !important; flex-direction: row !important; height: 70px !important;
+        padding: 10px 20px !important; justify-content: space-between !important; align-items: center !important;
+        background: rgba(10, 10, 10, 0.95) !important; border-bottom: 1px solid var(--neon-color) !important;
+    }
+    .left-section { width: auto !important; margin: 0 !important; display: flex !important; align-items: center !important; }
+    
+    .menu-toggle-btn {
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        background: transparent; border: 2px solid var(--neon-color); color: var(--neon-color); 
+        font-size: 1.8rem; width: 45px; height: 45px; border-radius: 8px; cursor: pointer; z-index: 10002 !important; transition: all 0.3s ease;
     }
 
-    .left-section {
-        width: 100% !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 15px !important;
-        margin: 0 !important;
+    /* Gaveta Lateral (Menu + Jogos Mobile) */
+    .mobile-sidebar {
+        display: flex !important; position: fixed !important; top: 0 !important; right: -100% !important; 
+        width: 280px !important; max-width: 80vw !important; height: 100vh !important;
+        background: rgba(10, 10, 10, 0.98) !important; border-left: 1px solid var(--neon-color) !important;
+        flex-direction: column !important; padding: 90px 20px 30px 20px !important;
+        transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        z-index: 10000 !important; overflow-y: auto !important; box-shadow: -10px 0 30px rgba(0,0,0,0.9);
+    }
+    .mobile-sidebar.mobile-open { right: 0 !important; }
+
+    #menu-dinamico-mobile { 
+        display: flex !important; flex-direction: column !important; gap: 5px !important; width: 100% !important; 
+        margin-bottom: 30px !important; padding: 0 !important;
+    }
+    #menu-dinamico-mobile .nav-link { 
+        font-size: 1.1rem !important; padding: 15px !important; border-bottom: 1px solid #222 !important; 
+        width: 100% !important; display: block !important; color: #fff !important; 
     }
 
-    /* 4. ENGESSAMENTO DA RÁDIO (O segredo contra o tremor do texto) */
-    .radio-panel {
-        width: 100% !important;
-        max-width: 320px !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        padding: 10px !important;
-        margin: 0 auto !important;
+    .mobile-games-title { color: var(--neon-color); font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .mobile-games-grid { display: flex; flex-direction: column; gap: 10px; }
+    
+    .m-game-btn { 
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; 
+        background: rgba(10, 10, 10, 0.8); border: 1px solid var(--neon-color); color: var(--text-color);
+        padding: 15px 10px; border-radius: 6px; font-size: 0.8rem; transition: all 0.3s ease;
     }
+    .m-game-btn i { color: var(--neon-color); font-size: 1.2rem; transition: all 0.3s ease; }
+    .m-game-btn:hover, .m-game-btn:active { background: var(--neon-color); color: #000; box-shadow: 0 0 15px var(--neon-color); }
+    .m-game-btn:hover i, .m-game-btn:active i { color: #000; filter: none; }
 
-    .radio-screen {
-        /* flex: 0 0 [tamanho] arranca a inteligência do Flexbox e congela a caixa */
-        flex: 0 0 160px !important; 
-        max-width: 160px !important;
-        overflow: hidden !important;
+    /* Ferramentas Flutuantes Mobile ao invés de fixas */
+    .mobile-tools-fab {
+        display: flex !important; position: fixed !important; bottom: 25px !important; right: 20px !important;
+        flex-direction: column !important; gap: 15px !important; z-index: 9998 !important;
     }
-
-    #radio-text {
-        display: block !important;
-        width: 100% !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important; /* Adiciona "..." se a música for grande */
-    }
-
-    /* 5. FERRAMENTAS E MENU FLUIDOS */
-    .tools-group {
-        width: 100% !important;
-        justify-content: center !important;
-        margin: 0 !important;
-        padding: 15px 0 0 0 !important;
-        border-left: none !important;
-        border-top: 1px solid #333 !important;
-    }
-
-    /* Centraliza o Color Picker para não vazar da tela */
-    .color-picker-tooltip {
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        top: 60px !important;
-    }
-    .color-picker-tooltip::before {
-        left: 50% !important;
-        transform: translateX(-50%) rotate(45deg) !important;
-    }
-
-    .menu {
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: 10px !important;
-    }
-
-    .nav-link {
-        font-size: 0.8rem !important;
-        padding: 8px 12px !important;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-    }
-
-    /* 6. RECALCULA O ESPAÇO DOS PROJETOS E DO CORPO */
-    .hero { 
-        padding-top: 280px !important; /* Compensa o topo que ficou mais alto */
+    .fab-btn {
+        width: 50px !important; height: 50px !important; border-radius: 50% !important;
+        background: rgba(15, 15, 15, 0.95) !important; border: 1px solid #333 !important; color: #fff !important;
+        display: flex !important; justify-content: center !important; align-items: center !important;
+        font-size: 1.2rem !important; cursor: pointer !important; box-shadow: 0 5px 15px rgba(0,0,0,0.8) !important;
     }
     
-    .section { 
-        padding: 60px 5% !important; 
+    .settings-panel { position: relative !important; }
+    .color-picker-tooltip { top: auto !important; bottom: 60px !important; left: -180px !important; }
+    .color-picker-tooltip::before { display: none !important; }
+
+    /* Rádio Flutuante Mobile (botão simples)*/
+    .mobile-radio-wrapper {
+        display: flex !important; flex-direction: column; align-items: center; gap: 10px;
+        position: fixed; bottom: 25px; left: 20px; z-index: 9998;
     }
-    
-    .grid-container { 
-        grid-template-columns: 1fr !important; /* Uma coluna só para os cards de projetos */
-        width: 100% !important;
+    .mobile-radio-dropdown {
+        background: rgba(15, 15, 15, 0.95); color: var(--neon-color); border: 1px solid var(--neon-color);
+        border-radius: 4px; padding: 5px; font-size: 0.65rem;
+        width: 100px; text-align: center; outline: none; box-shadow: 0 5px 15px rgba(0,0,0,0.8); text-overflow: ellipsis;
     }
-    
-    .card { 
-        width: 100% !important; 
-        box-sizing: border-box !important; 
+    .fab-radio-btn { position: relative !important; bottom: auto !important; left: auto !important; margin: 0 !important; }
+    .fab-radio-btn.playing {
+        padding-left: 0 !important; background: rgba(15, 15, 15, 0.95) !important;
+        box-shadow: 0 0 25px var(--neon-color), 0 0 15px var(--neon-color) inset !important;
+        animation: pulseNeon 2s infinite !important;
     }
+
+    /* Ajustes Proporcionais Layout (variam de acordo com o tamanho da tela*/
+    .hero { padding-top: 120px !important; }
+    .section { padding: 60px 5% !important; }
+    .grid-container { grid-template-columns: 1fr !important; width: 100% !important; gap: 20px !important; }
+    .card { width: 100% !important; box-sizing: border-box !important; margin: 0 !important; }
+    .card img.cert-img { width: 100% !important; height: auto !important; max-height: 200px !important; object-fit: cover !important; }
+    .radio-screen { width: 100% !important; max-width: none !important; }
+    .energy-wave { display: block !important; width: 100% !important; height: 100% !important; border-width: 2px !important; animation: spinContido 1.5s linear forwards !important; }
 }

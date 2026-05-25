@@ -1,14 +1,11 @@
-// ++++++++++++++++================== SISTEMA DE AUTENTICAÇÃO (MOCK) ======================+++++++++++++++
+// ++++++++++++++++================== SISTEMA DE AUTENTICAÇÃO CORPORATIVO (RBAC) ======================+++++++++++++++
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
 
-    // Verifica se estamos na página de login
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
-    } 
-    // Se não estivermos no login (estamos no Dashboard), verifica a sessão
-    else {
+    } else {
         checkSession();
     }
 });
@@ -16,60 +13,59 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleLogin(e) {
     e.preventDefault();
     
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.toLowerCase();
     const password = document.getElementById('password').value;
     const btnText = document.getElementById('btnText');
     const statusMsg = document.getElementById('statusMsg');
 
-    // Feedback Visual de Carregamento
-    btnText.innerText = "AUTENTICANDO...";
+    btnText.innerText = "AUTENTICANDO NO SERVIDOR...";
     statusMsg.classList.add('hidden');
 
-    // Simulação de delay de servidor (1.5 segundos)
     setTimeout(() => {
-        // Validação Simples (Pode aceitar qualquer coisa por enquanto para teste)
         if (email && password.length >= 4) {
             
-            // Sucesso: Cria "Token" no LocalStorage
+            // Atribuição Dinâmica de Cargos baseada no Email digitado
+            let userRole = "Operador"; // Padrão
+            let userName = "Colaborador Nexus";
+
+            if (email.includes("admin")) {
+                userRole = "Senior Admin";
+                userName = "Pedro Nichollas"; // Master
+            } else if (email.includes("rh")) {
+                userRole = "RH";
+                userName = "Gestor de Pessoas";
+            } else if (email.includes("fin")) {
+                userRole = "Financeiro";
+                userName = "Analista Financeiro";
+            }
+
             const sessionData = {
-                user: "Pedro Nichollas",
-                role: "Senior Admin",
-                token: "NEXUS-TOKEN-" + Date.now(),
-                photo: "../../assets/perfil.jpg" // Caminho da sua foto
+                user: userName,
+                role: userRole,
+                email: email,
+                token: "NEX-SECURE-" + Date.now().toString(36).toUpperCase()
             };
             
             localStorage.setItem('nexus_session', JSON.stringify(sessionData));
 
-            // Feedback de Sucesso
             statusMsg.className = "mt-4 p-3 text-center text-sm rounded border bg-green-500/20 border-green-500/50 text-green-200 block";
-            statusMsg.innerHTML = '<i class="fa-solid fa-check-circle"></i> Acesso Permitido. Redirecionando...';
+            statusMsg.innerHTML = `<i class="fa-solid fa-shield-check"></i> Bem-vindo, ${userName} (${userRole}).`;
             
-            // Redireciona para o Dashboard
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 1000);
 
         } else {
-            // Erro
             btnText.innerText = "INICIAR SESSÃO";
             statusMsg.className = "mt-4 p-3 text-center text-sm rounded border bg-red-500/20 border-red-500/50 text-red-200 block";
-            statusMsg.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Credenciais Inválidas.';
+            statusMsg.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Acesso Negado: Credenciais Inválidas.';
         }
-    }, 1500);
+    }, 1200);
 }
 
 function checkSession() {
-    // Essa função roda em TODAS as páginas internas (Dashboard, etc)
     const session = localStorage.getItem('nexus_session');
-    
     if (!session) {
-        // Se não tiver sessão, chuta para o login
-        alert("Sessão expirada. Faça login novamente.");
         window.location.href = 'index.html';
     }
-}
-
-function logout() {
-    localStorage.removeItem('nexus_session');
-    window.location.href = 'index.html';
 }

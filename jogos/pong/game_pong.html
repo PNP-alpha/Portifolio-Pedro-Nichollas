@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Pong | PNP Systems</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="pong_style.css">
+</head>
+<body>
+
+    <a href="../../index.html" class="universal-exit-btn">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> SISTEMA PRINCIPAL
+    </a>
+
+    <div id="start-screen" class="screen-overlay">
+        <div class="terminal-window">
+            <h1 class="glitch-title">PONG PROTOCOL v8.0</h1>
+            <p class="subtitle">INTERCEPTAÇÃO DE PACOTES BIDIRELACIONAIS</p>
+            
+            <div class="leaderboard-container">
+                <h3><i class="fa-solid fa-database"></i> ÚLTIMOS 10 RESULTADOS</h3>
+                <table id="scores-table">
+                    <thead>
+                        <tr>
+                            <th>INDEX</th>
+                            <th>DATA/HORA</th>
+                            <th>SCORE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scores-body">
+                        </tbody>
+                </table>
+            </div>
+            
+            <button id="btn-start" class="cyber-start-btn">
+                <span class="btn-glow"></span>
+                INICIAR INTERCEPTAÇÃO
+            </button>
+        </div>
+    </div>
+
+    <div class="game-wrapper">
+        <div class="hud-top">
+            <div class="hud-item player-side">
+                <span class="hud-label">HACKER (VOCÊ)</span>
+                <span class="hud-value" id="score-player">0</span>
+            </div>
+            
+            <div class="hud-item center-status">
+                <span class="hud-label">INTEGRIDADE</span>
+                <div class="lives-container" id="lives-display">
+                    <i class="fa-solid fa-heart"></i>
+                    <i class="fa-solid fa-heart"></i>
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+            </div>
+
+            <div class="hud-item system-side">
+                <span class="hud-label">SISTEMA (IA)</span>
+                <span class="hud-value" id="score-ai">NÍVEL 1</span>
+            </div>
+        </div>
+
+        <div class="board-wrapper">
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+        </div>
+        
+        <div class="controls-hint">
+            <p>[W / S] ou [Setas Cima/Baixo] para Mover | [ESC] Sair para o Menu</p>
+        </div>
+    </div>
+
+    <script src="pong_script.js"></script>
+</body>
+</html>
